@@ -484,3 +484,5 @@ file search does not work
 1. Make the text area read only
 
 1. Vertical scroll disappeared for the text area
+
+1. Let's store the list of 5 recently used folders. The Change Directory component will allow to select a folder from a list or to browse.

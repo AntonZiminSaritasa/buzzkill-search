@@ -33,6 +33,7 @@ import time
 import queue
 import re
 from datetime import datetime
+from subway_surfer_animation import SubwaySurferAnimation
 
 class LineNumberedText(tk.Text):
     def __init__(self, master, **kwargs):
@@ -61,9 +62,6 @@ class LineNumberedText(tk.Text):
         
         # Initial line numbers
         self._update_line_numbers()
-        
-        # Make text area read-only
-        self.configure(state='disabled')
         
     def set_listbox(self, listbox):
         self.listbox = listbox
@@ -95,13 +93,9 @@ class LineNumberedText(tk.Text):
         self._update_line_numbers()
         
     def update_content(self, content):
-        # Enable text widget for update
-        self.configure(state='normal')
         self.delete('1.0', tk.END)
         self.insert('1.0', content)
         self._update_line_numbers()
-        # Make text widget read-only again
-        self.configure(state='disabled')
 
 class FileSearchApp:
     def __init__(self, root):
@@ -113,28 +107,24 @@ class FileSearchApp:
         root.grid_rowconfigure(0, weight=1)
         root.grid_columnconfigure(0, weight=1)
         
-        # Load last directory
+        # Load last directory and recent directories
         self.last_dir_file = os.path.join(os.path.expanduser("~"), ".file_search_app", "last_directory.json")
-        self.search_path = self.load_last_directory()
+        self.search_path, self.recent_dirs = self.load_last_directory()
         
         # Memory limits
         self.max_file_size = 10 * 1024 * 1024  # 10MB
         self.max_results = 1000  # Maximum number of results to show
+        self.max_recent_dirs = 5  # Maximum number of recent directories to store
         
         # Initialize file paths dictionary
         self.file_paths = {}
-        
-        # Spinner animation
-        self.spinner_chars = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
-        self.spinner_index = 0
-        self.spinner_running = False
         
         # Create main frame
         main_frame = ttk.Frame(root, padding="10")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Configure main frame grid weights
-        main_frame.grid_rowconfigure(3, weight=1)  # Changed from 2 to 3 to match new layout
+        main_frame.grid_rowconfigure(2, weight=1)
         main_frame.grid_columnconfigure(0, weight=1)
         main_frame.grid_columnconfigure(1, weight=1)
         
@@ -198,14 +188,9 @@ class FileSearchApp:
         # Text area for file content with line numbers
         self.content_text = LineNumberedText(right_frame, width=70, height=30, wrap=tk.NONE)
         
-        # Add vertical scrollbar for text area
-        text_v_scrollbar = ttk.Scrollbar(right_frame, orient=tk.VERTICAL, command=self.content_text.yview)
-        text_v_scrollbar.grid(row=0, column=2, sticky=(tk.N, tk.S))
-        self.content_text.configure(yscrollcommand=text_v_scrollbar.set)
-        
         # Add horizontal scrollbar for text area
         text_scrollbar = ttk.Scrollbar(right_frame, orient=tk.HORIZONTAL, command=self.content_text.xview)
-        text_scrollbar.grid(row=1, column=0, columnspan=3, sticky=(tk.W, tk.E))  # Updated columnspan to include vertical scrollbar
+        text_scrollbar.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E))  # Added columnspan=2 to span both columns
         self.content_text.configure(xscrollcommand=text_scrollbar.set)
         
         # Add status bar at the bottom
@@ -301,39 +286,113 @@ class FileSearchApp:
                 self.search_thread.join(timeout=1.0)  # Wait up to 1 second for thread to finish
             self.search_thread = None
             self.result_count = 0
-            # Stop spinner
-            self.spinner_running = False
-            self.status_bar.config(text="")
+            # Close animation if it exists
+            if hasattr(self, 'animation'):
+                self.animation.close()
+                delattr(self, 'animation')
             
     def load_last_directory(self):
         try:
             if os.path.exists(self.last_dir_file):
                 with open(self.last_dir_file, 'r') as f:
                     data = json.load(f)
-                    if os.path.exists(data.get('last_directory', '')):
-                        return data['last_directory']
+                    last_dir = data.get('last_directory', '')
+                    recent_dirs = data.get('recent_directories', [])
+                    if os.path.exists(last_dir):
+                        return last_dir, recent_dirs
         except Exception:
             pass
-        return str(Path.home() / "Documents")
+        return str(Path.home() / "Documents"), []
         
     def save_last_directory(self):
         try:
+            # Create directory if it doesn't exist
+            os.makedirs(os.path.dirname(self.last_dir_file), exist_ok=True)
             with open(self.last_dir_file, 'w') as f:
-                json.dump({'last_directory': self.search_path}, f)
-        except Exception:
-            pass
+                json.dump({
+                    'last_directory': self.search_path,
+                    'recent_directories': self.recent_dirs
+                }, f)
+        except Exception as e:
+            print(f"Error saving last directory: {e}")
             
     def pick_directory(self):
+        # Create directory selection dialog
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Select Directory")
+        dialog.geometry("400x300")
+        dialog.transient(self.root)
+        dialog.grab_set()
+        
+        # Create main frame
+        main_frame = ttk.Frame(dialog, padding="10")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Recent directories label
+        ttk.Label(main_frame, text="Recent Directories:").pack(anchor=tk.W)
+        
+        # Recent directories listbox
+        recent_listbox = tk.Listbox(main_frame, height=5)
+        recent_listbox.pack(fill=tk.X, pady=(0, 10))
+        
+        # Populate recent directories
+        for dir_path in self.recent_dirs:
+            if os.path.exists(dir_path):
+                recent_listbox.insert(tk.END, dir_path)
+        
+        # Browse button
+        browse_button = ttk.Button(main_frame, text="Browse...", command=lambda: self.browse_directory(dialog, recent_listbox))
+        browse_button.pack(fill=tk.X, pady=(0, 10))
+        
+        # OK button
+        ok_button = ttk.Button(main_frame, text="OK", command=lambda: self.select_directory(dialog, recent_listbox))
+        ok_button.pack(fill=tk.X)
+        
+        # Bind double-click on listbox
+        recent_listbox.bind('<Double-Button-1>', lambda e: self.select_directory(dialog, recent_listbox))
+        
+        # Center dialog
+        dialog.update_idletasks()
+        width = dialog.winfo_width()
+        height = dialog.winfo_height()
+        x = (dialog.winfo_screenwidth() // 2) - (width // 2)
+        y = (dialog.winfo_screenheight() // 2) - (height // 2)
+        dialog.geometry(f'{width}x{height}+{x}+{y}')
+        
+    def browse_directory(self, dialog, recent_listbox):
         directory = filedialog.askdirectory(initialdir=self.search_path)
         if directory:
-            self.search_path = directory
-            self.dir_label.config(text="Search Directory: " + self.search_path)
-            self.save_last_directory()
-            # Clear previous results
-            self.result_list.delete(0, tk.END)
-            self.content_text.delete('1.0', tk.END)
-            self.cancel_search()  # Cancel any ongoing search
-            self.result_count = 0
+            self.select_directory(dialog, recent_listbox, directory)
+            
+    def select_directory(self, dialog, recent_listbox, directory=None):
+        if directory is None:
+            selection = recent_listbox.curselection()
+            if not selection:
+                return
+            directory = recent_listbox.get(selection[0])
+            
+        # Update search path
+        self.search_path = directory
+        
+        # Update recent directories
+        if directory in self.recent_dirs:
+            self.recent_dirs.remove(directory)
+        self.recent_dirs.insert(0, directory)
+        if len(self.recent_dirs) > self.max_recent_dirs:
+            self.recent_dirs = self.recent_dirs[:self.max_recent_dirs]
+            
+        # Update UI
+        self.dir_label.config(text="Search Directory: " + self.search_path)
+        self.save_last_directory()
+        
+        # Clear previous results
+        self.result_list.delete(0, tk.END)
+        self.content_text.delete('1.0', tk.END)
+        self.cancel_search()  # Cancel any ongoing search
+        self.result_count = 0
+        
+        # Close dialog
+        dialog.destroy()
         
     def on_search_change(self, *args):
         # Cancel any pending search
@@ -374,9 +433,8 @@ class FileSearchApp:
         # Enable cancel button
         self.cancel_button.config(state='normal')
         
-        # Start spinner
-        self.spinner_running = True
-        self.update_spinner()
+        # Start animation
+        self.animation = SubwaySurferAnimation(self.root)
         
         # Start new search
         self.search_running = True
@@ -384,12 +442,6 @@ class FileSearchApp:
         self.search_thread.daemon = True
         self.search_thread.start()
         
-    def update_spinner(self):
-        if self.spinner_running:
-            self.spinner_index = (self.spinner_index + 1) % len(self.spinner_chars)
-            self.status_bar.config(text=f"Searching... {self.spinner_chars[self.spinner_index]}")
-            self.root.after(100, self.update_spinner)  # Update every 100ms
-            
     def search_files(self, search_term):
         try:
             for root, _, files in os.walk(self.search_path):
@@ -427,9 +479,10 @@ class FileSearchApp:
             self.root.after(0, self.add_result, "Error: {}".format(str(e)))
         finally:
             self.root.after(0, self.cancel_button.config, {'state': 'disabled'})
-            # Stop spinner
-            self.root.after(0, lambda: setattr(self, 'spinner_running', False))
-            self.root.after(0, lambda: self.status_bar.config(text=""))
+            # Close animation when search is complete
+            if hasattr(self, 'animation'):
+                self.root.after(0, self.animation.close)
+                self.root.after(0, lambda: delattr(self, 'animation'))
             
     def add_result(self, file_path):
         if self.search_running:  # Only add if search is still running
@@ -526,7 +579,7 @@ class FileSearchApp:
     def update_content(self, content):
         try:
             print(f"Updating content with length: {len(content)}")
-            # Enable text widget for update
+            # Ensure text widget is enabled
             self.content_text.configure(state='normal')
             
             # Clear existing content
@@ -544,8 +597,8 @@ class FileSearchApp:
             # Force update
             self.root.update_idletasks()
             
-            # Make text widget read-only again
-            self.content_text.configure(state='disabled')
+            # Ensure text widget stays enabled
+            self.content_text.configure(state='normal')
             
             print("Content update completed")
         except Exception as e:
