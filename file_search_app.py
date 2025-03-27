@@ -403,6 +403,10 @@ class FileSearchApp:
         dialog.destroy()
         
     def on_search_change(self, *args):
+        # Cancel any pending search
+        if self.search_after_id:
+            self.root.after_cancel(self.search_after_id)
+        
         # Get current search term
         search_term = self.search_var.get().strip()
         
@@ -419,8 +423,8 @@ class FileSearchApp:
         if search_term == self.last_search_term:
             return
             
-        # Start search immediately
-        self.perform_search(search_term)
+        # Schedule new search after a very short delay (100ms instead of 500ms)
+        self.search_after_id = self.root.after(100, self.perform_search, search_term)
         
     def perform_search(self, search_term):
         # Update last search term
@@ -458,6 +462,9 @@ class FileSearchApp:
             # Convert search term to lowercase once
             search_term_lower = search_term.lower()
             
+            # Create a set of file extensions to skip
+            skip_extensions = {'.exe', '.dll', '.pdb', '.cache', '.tmp', '.log', '.bin', '.dat'}
+            
             for root, _, files in os.walk(self.search_path):
                 if not self.search_running:
                     break
@@ -468,6 +475,10 @@ class FileSearchApp:
                         
                     file_path = Path(root) / file
                     try:
+                        # Skip binary and large files early
+                        if file_path.suffix.lower() in skip_extensions:
+                            continue
+                            
                         # Check file size before reading
                         if file_path.stat().st_size > self.max_file_size:
                             continue
@@ -483,10 +494,11 @@ class FileSearchApp:
                             self.result_count += 1
                             continue
                             
-                        with open(file_path, 'r', encoding='utf-8') as f:
-                            # Read file in chunks to save memory
+                        # For content search, use a larger chunk size for better performance
+                        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                            # Read file in larger chunks (32KB) for better performance
                             while True:
-                                chunk = f.read(8192)  # Read 8KB at a time
+                                chunk = f.read(32768)  # Read 32KB at a time
                                 if not chunk:
                                     break
                                 if search_term_lower in chunk.lower():

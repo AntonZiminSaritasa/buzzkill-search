@@ -500,3 +500,5 @@ file search does not work
 1. Why did you change the spinner icon?
 
 1. The search must be instant.
+
+1. I did not ask to remove the debounce. I want the search to be very quick.
