@@ -649,8 +649,8 @@ class FileSearchApp:
             # Force update
             self.root.update_idletasks()
             
-            # Ensure text widget stays enabled
-            self.content_text.configure(state='normal')
+            # Make text widget read-only
+            self.content_text.configure(state='disabled')
             
             print("Content update completed")
         except Exception as e:
