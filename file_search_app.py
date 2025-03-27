@@ -26,6 +26,10 @@ class LineNumberedText(tk.Text):
         # Configure the main text widget
         self.grid(row=0, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
         
+        # Configure grid weights
+        master.grid_rowconfigure(0, weight=1)
+        master.grid_columnconfigure(1, weight=1)
+        
         # Bind events
         self.bind('<Key>', self._on_key)
         self.bind('<MouseWheel>', self._on_mousewheel)
@@ -50,27 +54,44 @@ class LineNumberedText(tk.Text):
         return None
         
     def _update_line_numbers(self):
-        # Get the number of lines
-        lines = self.get('1.0', tk.END).count('\n')
-        
-        # Update line numbers
-        self.line_numbers.config(state='normal')
-        self.line_numbers.delete('1.0', tk.END)
-        for i in range(1, lines + 1):
-            self.line_numbers.insert(tk.END, '{0}\n'.format(i))
-        self.line_numbers.config(state='disabled')
-        
-        # Sync scrollbars
-        self.line_numbers.yview_moveto(self.yview()[0])
+        try:
+            # Get the number of lines
+            lines = self.get('1.0', tk.END).count('\n')
+            
+            # Update line numbers
+            self.line_numbers.config(state='normal')
+            self.line_numbers.delete('1.0', tk.END)
+            for i in range(1, lines + 1):
+                self.line_numbers.insert(tk.END, '{0}\n'.format(i))
+            self.line_numbers.config(state='disabled')
+            
+            # Sync scrollbars
+            self.line_numbers.yview_moveto(self.yview()[0])
+        except Exception as e:
+            print("Error updating line numbers: {0}".format(e))
         
     def configure(self, **kwargs):
         super().configure(**kwargs)
         self._update_line_numbers()
         
     def update_content(self, content):
-        self.delete('1.0', tk.END)
-        self.insert('1.0', content)
-        self._update_line_numbers()
+        try:
+            # Clear existing content
+            self.delete('1.0', tk.END)
+            
+            # Insert new content
+            self.insert('1.0', content)
+            
+            # Update line numbers
+            self._update_line_numbers()
+            
+            # Ensure the text area is visible
+            self.see('1.0')
+            
+            # Force update
+            self.master.update_idletasks()
+        except Exception as e:
+            print("Error updating content: {0}".format(e))
 
 class IconListbox(tk.Listbox):
     def __init__(self, master, **kwargs):
@@ -239,6 +260,10 @@ class FileSearchApp:
         text_scrollbar = ttk.Scrollbar(right_frame, orient=tk.HORIZONTAL, command=self.content_text.xview)
         text_scrollbar.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E))
         self.content_text.configure(xscrollcommand=text_scrollbar.set)
+        
+        # Configure text area
+        self.content_text.configure(font=('Courier', 10))
+        self.content_text.line_numbers.configure(font=('Courier', 10))
         
         # Bind listbox selection event
         self.result_list.bind('<<ListboxSelect>>', self.on_select_file)
