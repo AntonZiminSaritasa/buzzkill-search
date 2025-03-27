@@ -25,11 +25,6 @@ class LineNumberedText(tk.Text):
         self.bind('<Button-4>', self._on_mousewheel)
         self.bind('<Button-5>', self._on_mousewheel)
         
-        # Prevent focus stealing
-        self.bind('<Button-1>', self._on_click)
-        self.bind('<Button-2>', self._on_click)
-        self.bind('<Button-3>', self._on_click)
-        
         # Store reference to listbox
         self.listbox = None
         
@@ -38,10 +33,6 @@ class LineNumberedText(tk.Text):
         
     def set_listbox(self, listbox):
         self.listbox = listbox
-        
-    def _on_click(self, event):
-        # Don't take focus when clicking
-        return "break"
         
     def _on_key(self, event):
         self._update_line_numbers()
@@ -172,6 +163,10 @@ class FileSearchApp:
         
         # Bind right-click event
         self.result_list.bind('<Button-3>', self.show_context_menu)
+        
+        # Bind focus events to maintain listbox selection
+        self.result_list.bind('<FocusOut>', self._on_listbox_focus_out)
+        self.content_text.bind('<FocusIn>', self._on_text_focus_in)
         
         # Create context menu
         self.context_menu = tk.Menu(root, tearoff=0)
@@ -415,6 +410,16 @@ class FileSearchApp:
                 
     def update_content(self, content):
         self.content_text.update_content(content)
+
+    def _on_listbox_focus_out(self, event):
+        # Store the current selection
+        self._last_selection = self.result_list.curselection()
+        
+    def _on_text_focus_in(self, event):
+        # Restore the listbox selection if it exists
+        if hasattr(self, '_last_selection') and self._last_selection:
+            self.result_list.selection_set(self._last_selection[0])
+            self.result_list.see(self._last_selection[0])
 
 if __name__ == "__main__":
     root = tk.Tk()
