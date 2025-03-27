@@ -59,6 +59,11 @@ class FileSearchApp:
         self.search_thread = None
         self.search_running = False
         
+        # File reading queue and thread
+        self.file_queue = queue.Queue()
+        self.file_thread = None
+        self.file_running = False
+        
     def on_search_change(self, *args):
         search_term = self.search_var.get().strip()
         if search_term:
@@ -121,14 +126,35 @@ class FileSearchApp:
             self.content_text.insert('1.0', file_path)
             return
             
+        # Cancel previous file reading if running
+        if self.file_running:
+            self.file_running = False
+            if self.file_thread:
+                self.file_thread.join()
+        
+        # Clear previous content
+        self.content_text.delete('1.0', tk.END)
+        self.content_text.insert('1.0', "Loading file...")
+        
+        # Start new file reading thread
+        self.file_running = True
+        self.file_thread = threading.Thread(target=self.read_file_content, args=(file_path,))
+        self.file_thread.daemon = True
+        self.file_thread.start()
+        
+    def read_file_content(self, file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-                self.content_text.delete('1.0', tk.END)
-                self.content_text.insert('1.0', content)
+                if self.file_running:  # Only update if we haven't cancelled
+                    self.root.after(0, self.update_content, content)
         except Exception as e:
-            self.content_text.delete('1.0', tk.END)
-            self.content_text.insert('1.0', "Error reading file: {}".format(str(e)))
+            if self.file_running:  # Only update if we haven't cancelled
+                self.root.after(0, self.update_content, "Error reading file: {}".format(str(e)))
+                
+    def update_content(self, content):
+        self.content_text.delete('1.0', tk.END)
+        self.content_text.insert('1.0', content)
 
 if __name__ == "__main__":
     root = tk.Tk()
