@@ -1,9 +1,10 @@
 import tkinter as tk
-from tkinter import ttk, scrolledtext
+from tkinter import ttk, scrolledtext, filedialog
 import os
 from pathlib import Path
 import threading
 import queue
+import json
 
 class FileSearchApp:
     def __init__(self, root):
@@ -11,19 +12,35 @@ class FileSearchApp:
         self.root.title("File Search")
         self.root.geometry("1200x600")
         
+        # Load last directory
+        self.last_dir_file = "last_directory.json"
+        self.search_path = self.load_last_directory()
+        
         # Create main frame
         main_frame = ttk.Frame(root, padding="10")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
+        # Directory selection frame
+        dir_frame = ttk.Frame(main_frame)
+        dir_frame.grid(row=0, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        
+        # Directory label
+        self.dir_label = ttk.Label(dir_frame, text="Search Directory: " + self.search_path)
+        self.dir_label.grid(row=0, column=0, sticky=(tk.W, tk.E))
+        
+        # Directory picker button
+        dir_button = ttk.Button(dir_frame, text="Change Directory", command=self.pick_directory)
+        dir_button.grid(row=0, column=1, padx=(10, 0))
         
         # Search entry
         self.search_var = tk.StringVar()
         self.search_var.trace('w', self.on_search_change)
         search_entry = ttk.Entry(main_frame, textvariable=self.search_var, width=50)
-        search_entry.grid(row=0, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        search_entry.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
         
         # Left frame for list
         left_frame = ttk.Frame(main_frame)
-        left_frame.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        left_frame.grid(row=2, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Listbox for results
         self.result_list = tk.Listbox(left_frame, width=70, height=30)
@@ -36,7 +53,7 @@ class FileSearchApp:
         
         # Right frame for content
         right_frame = ttk.Frame(main_frame)
-        right_frame.grid(row=1, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(10, 0))
+        right_frame.grid(row=2, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(10, 0))
         
         # Text area for file content
         self.content_text = scrolledtext.ScrolledText(right_frame, width=70, height=30)
@@ -45,11 +62,12 @@ class FileSearchApp:
         # Configure grid weights
         main_frame.columnconfigure(0, weight=1)
         main_frame.columnconfigure(1, weight=1)
-        main_frame.rowconfigure(1, weight=1)
+        main_frame.rowconfigure(2, weight=1)
         left_frame.columnconfigure(0, weight=1)
         left_frame.rowconfigure(0, weight=1)
         right_frame.columnconfigure(0, weight=1)
         right_frame.rowconfigure(0, weight=1)
+        dir_frame.columnconfigure(0, weight=1)
         
         # Bind listbox selection event
         self.result_list.bind('<<ListboxSelect>>', self.on_select_file)
@@ -63,6 +81,34 @@ class FileSearchApp:
         self.file_queue = queue.Queue()
         self.file_thread = None
         self.file_running = False
+        
+    def load_last_directory(self):
+        try:
+            if os.path.exists(self.last_dir_file):
+                with open(self.last_dir_file, 'r') as f:
+                    data = json.load(f)
+                    if os.path.exists(data.get('last_directory', '')):
+                        return data['last_directory']
+        except Exception:
+            pass
+        return "D:/Work/Cursor/cursor-test"
+        
+    def save_last_directory(self):
+        try:
+            with open(self.last_dir_file, 'w') as f:
+                json.dump({'last_directory': self.search_path}, f)
+        except Exception:
+            pass
+            
+    def pick_directory(self):
+        directory = filedialog.askdirectory(initialdir=self.search_path)
+        if directory:
+            self.search_path = directory
+            self.dir_label.config(text="Search Directory: " + self.search_path)
+            self.save_last_directory()
+            # Clear previous results
+            self.result_list.delete(0, tk.END)
+            self.content_text.delete('1.0', tk.END)
         
     def on_search_change(self, *args):
         search_term = self.search_var.get().strip()
@@ -90,9 +136,8 @@ class FileSearchApp:
         self.search_thread.start()
         
     def search_files(self, search_term):
-        search_path = Path("D:/Work/Cursor/cursor-test")
         try:
-            for root, _, files in os.walk(search_path):
+            for root, _, files in os.walk(self.search_path):
                 if not self.search_running:
                     break
                     
