@@ -99,7 +99,7 @@ class LineNumberedText(tk.Text):
         self.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
         # Configure the main text widget
-        self.configure(wrap=tk.NONE, state='normal')
+        self.configure(wrap=tk.NONE, state='normal', background='white')
         
         # Bind events
         self.bind('<Key>', self._on_key)
@@ -166,9 +166,6 @@ class LineNumberedText(tk.Text):
             
             # Force update
             self.master.update_idletasks()
-            
-            # Keep text widget enabled
-            self.configure(state='normal')
             
             print("LineNumberedText content update completed")
         except Exception as e:
@@ -276,13 +273,14 @@ class FileSearchApp:
         self.content_text.configure(xscrollcommand=text_scrollbar.set)
         
         # Configure text area
-        self.content_text.configure(font=('Courier', 10), background='white', state='normal')
+        self.content_text.configure(font=('Courier', 10))
         self.content_text.line_numbers.configure(font=('Courier', 10))
         
         # Ensure text area is enabled and visible
         self.content_text.frame.configure(bg='white')
         
         # Test text display
+        self.content_text.delete('1.0', tk.END)
         self.content_text.insert('1.0', "Ready to display file content...")
         
         # Bind listbox selection event
