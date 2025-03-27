@@ -271,10 +271,12 @@ class FileSearchApp:
         
     def save_last_directory(self):
         try:
+            # Create the directory if it doesn't exist
+            os.makedirs(os.path.dirname(self.last_dir_file), exist_ok=True)
             with open(self.last_dir_file, 'w') as f:
                 json.dump({'last_directory': self.search_path}, f)
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Error saving last directory: {e}")
             
     def pick_directory(self):
         directory = filedialog.askdirectory(initialdir=self.search_path)
