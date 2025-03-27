@@ -554,3 +554,7 @@ sdb, mui, ttf, mkv, wav, raw, etl
 1. Let's add file name filter to the UI.
 
 1. Rename the program to buzzkill-search.
+
+1. Can you rename the py file?
+
+1. Did you create file_search_app.py again?
