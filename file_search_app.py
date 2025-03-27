@@ -86,13 +86,15 @@ class FileSearchApp:
         self.search_queue = queue.Queue()
         self.search_thread = None
         self.search_running = False
-        self.last_search_time = 0
-        self.search_delay = 0.5  # Delay between searches in seconds
         
         # File reading queue and thread
         self.file_queue = queue.Queue()
         self.file_thread = None
         self.file_running = False
+        
+        # Search debouncing
+        self.search_after_id = None
+        self.last_search_term = ""
         
     def cancel_search(self):
         if self.search_running:
@@ -132,27 +134,33 @@ class FileSearchApp:
             self.cancel_search()  # Cancel any ongoing search
         
     def on_search_change(self, *args):
-        current_time = time.time()
-        if current_time - self.last_search_time < self.search_delay:
-            # Schedule the search for later
-            self.root.after(int((self.search_delay - (current_time - self.last_search_time)) * 1000), 
-                          self.perform_search)
-            return
-            
-        self.perform_search()
+        # Cancel any pending search
+        if self.search_after_id:
+            self.root.after_cancel(self.search_after_id)
         
-    def perform_search(self):
-        self.last_search_time = time.time()
+        # Get current search term
         search_term = self.search_var.get().strip()
-        if search_term:
-            self.start_search(search_term)
-        else:
+        
+        # If search term is empty, clear results immediately
+        if not search_term:
             self.result_list.delete(0, tk.END)
             self.content_text.delete('1.0', tk.END)
             self.cancel_search()
+            self.last_search_term = ""
+            return
             
-    def start_search(self, search_term):
-        # Cancel previous search if running
+        # If search term hasn't changed, don't search again
+        if search_term == self.last_search_term:
+            return
+            
+        # Schedule new search after delay
+        self.search_after_id = self.root.after(500, self.perform_search, search_term)
+        
+    def perform_search(self, search_term):
+        # Update last search term
+        self.last_search_term = search_term
+        
+        # Cancel any running search
         self.cancel_search()
         
         # Clear previous results
