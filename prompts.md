@@ -562,3 +562,5 @@ sdb, mui, ttf, mkv, wav, raw, etl
 1. You deleted README.md and LICENSE in 5234883dad8d2b35a8b56dca286b235b9a9c522d. I need to restore them.
 
 1. Remove the license from the py file. Copy the disclaimer in README.md to the top (it should be shown in 2 places). Also, copy the disclaimer to the py file.
+
+1. Wrong. You deleted the LICENSE file but the license block still presents in the py file.
