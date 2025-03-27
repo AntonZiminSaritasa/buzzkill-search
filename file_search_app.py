@@ -17,6 +17,10 @@ class FileSearchApp:
         self.last_dir_file = "last_directory.json"
         self.search_path = self.load_last_directory()
         
+        # Memory limits
+        self.max_file_size = 10 * 1024 * 1024  # 10MB
+        self.max_results = 1000  # Maximum number of results to show
+        
         # Create main frame
         main_frame = ttk.Frame(root, padding="10")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
@@ -65,8 +69,13 @@ class FileSearchApp:
         right_frame.grid(row=2, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(10, 0))
         
         # Text area for file content
-        self.content_text = scrolledtext.ScrolledText(right_frame, width=70, height=30)
+        self.content_text = scrolledtext.ScrolledText(right_frame, width=70, height=30, wrap=tk.NONE)
         self.content_text.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
+        # Add horizontal scrollbar for text area
+        text_scrollbar = ttk.Scrollbar(right_frame, orient=tk.HORIZONTAL, command=self.content_text.xview)
+        text_scrollbar.grid(row=1, column=0, sticky=(tk.W, tk.E))
+        self.content_text.configure(xscrollcommand=text_scrollbar.set)
         
         # Configure grid weights
         main_frame.columnconfigure(0, weight=1)
@@ -106,6 +115,9 @@ class FileSearchApp:
         # File selection lock
         self.file_selection_lock = threading.Lock()
         
+        # Result counter
+        self.result_count = 0
+        
     def show_context_menu(self, event):
         # Get the index of the item under the cursor
         index = self.result_list.nearest(event.y)
@@ -142,6 +154,7 @@ class FileSearchApp:
             if self.search_thread:
                 self.search_thread.join(timeout=1.0)  # Wait up to 1 second for thread to finish
             self.search_thread = None
+            self.result_count = 0
             
     def load_last_directory(self):
         try:
@@ -171,6 +184,7 @@ class FileSearchApp:
             self.result_list.delete(0, tk.END)
             self.content_text.delete('1.0', tk.END)
             self.cancel_search()  # Cancel any ongoing search
+            self.result_count = 0
         
     def on_search_change(self, *args):
         # Cancel any pending search
@@ -186,6 +200,7 @@ class FileSearchApp:
             self.content_text.delete('1.0', tk.END)
             self.cancel_search()
             self.last_search_term = ""
+            self.result_count = 0
             return
             
         # If search term hasn't changed, don't search again
@@ -205,6 +220,7 @@ class FileSearchApp:
         # Clear previous results
         self.result_list.delete(0, tk.END)
         self.content_text.delete('1.0', tk.END)
+        self.result_count = 0
         
         # Enable cancel button
         self.cancel_button.config(state='normal')
@@ -227,10 +243,25 @@ class FileSearchApp:
                         
                     file_path = Path(root) / file
                     try:
+                        # Check file size before reading
+                        if file_path.stat().st_size > self.max_file_size:
+                            continue
+                            
+                        # Check if we've reached the maximum number of results
+                        if self.result_count >= self.max_results:
+                            self.root.after(0, self.add_result, f"Maximum number of results ({self.max_results}) reached.")
+                            return
+                            
                         with open(file_path, 'r', encoding='utf-8') as f:
-                            content = f.read()
-                            if search_term.lower() in content.lower():
-                                self.root.after(0, self.add_result, str(file_path))
+                            # Read file in chunks to save memory
+                            while True:
+                                chunk = f.read(8192)  # Read 8KB at a time
+                                if not chunk:
+                                    break
+                                if search_term.lower() in chunk.lower():
+                                    self.root.after(0, self.add_result, str(file_path))
+                                    self.result_count += 1
+                                    break
                     except (UnicodeDecodeError, PermissionError):
                         continue
         except Exception as e:
@@ -280,10 +311,25 @@ class FileSearchApp:
         
     def read_file_content(self, file_path):
         try:
+            # Check file size before reading
+            if Path(file_path).stat().st_size > self.max_file_size:
+                self.root.after(0, self.update_content, "File is too large to display (>10MB)")
+                return
+                
             with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
+                # Read file in chunks to save memory
+                content = []
+                while True:
+                    chunk = f.read(8192)  # Read 8KB at a time
+                    if not chunk:
+                        break
+                    content.append(chunk)
+                    if len(''.join(content)) > self.max_file_size:
+                        content = [''.join(content)[:self.max_file_size] + "\n... (file truncated)"]
+                        break
+                        
                 if self.file_running:  # Only update if we haven't cancelled
-                    self.root.after(0, self.update_content, content)
+                    self.root.after(0, self.update_content, ''.join(content))
         except Exception as e:
             if self.file_running:  # Only update if we haven't cancelled
                 self.root.after(0, self.update_content, "Error reading file: {}".format(str(e)))
