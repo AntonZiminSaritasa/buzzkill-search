@@ -83,16 +83,20 @@ class IconListbox(tk.Listbox):
             # Get or create icon for the file
             icon = self._get_file_icon(file_path)
             if icon:
-                super().insert(index, " " + os.path.basename(file_path))  # Add space for icon
+                # Store the full path
+                self.paths[index] = file_path
+                # Insert with icon
+                super().insert(index, " " + os.path.basename(file_path))
                 self.icons[index] = icon
-                self.paths[index] = file_path
             else:
-                super().insert(index, os.path.basename(file_path))
+                # Store the full path
                 self.paths[index] = file_path
+                # Insert without icon
+                super().insert(index, os.path.basename(file_path))
         except Exception as e:
             print("Error inserting file {0}: {1}".format(file_path, e))
-            super().insert(index, os.path.basename(file_path))
             self.paths[index] = file_path
+            super().insert(index, os.path.basename(file_path))
             
     def delete_all(self):
         self.icons.clear()
@@ -105,7 +109,7 @@ class IconListbox(tk.Listbox):
     def _get_file_icon(self, file_path):
         try:
             # Get file info with icon
-            flags = shellcon.SHGFI_ICON | shellcon.SHGFI_SMALLICON | shellcon.SHGFI_USEFILEATTRIBUTES
+            flags = shellcon.SHGFI_ICON | shellcon.SHGFI_SMALLICON
             file_info = shell.SHGetFileInfo(file_path, 0, flags)
             
             # Get icon handle
@@ -124,7 +128,6 @@ class IconListbox(tk.Listbox):
             try:
                 win32gui.DrawIconEx(hdc.GetHandleOutput(), 0, 0, icon_handle, 16, 16, 0, None, win32con.DI_NORMAL)
             except Exception:
-                # If DrawIconEx fails, try using a default icon
                 return None
             
             # Convert bitmap to bytes
@@ -446,8 +449,11 @@ class FileSearchApp:
             
     def add_result(self, file_path):
         if self.search_running:  # Only add if search is still running
-            self.result_list.insert_with_icon(tk.END, file_path)
-            self.result_list.see(tk.END)
+            try:
+                self.result_list.insert_with_icon(tk.END, file_path)
+                self.result_list.see(tk.END)
+            except Exception as e:
+                print("Error adding result {0}: {1}".format(file_path, e))
         
     def on_select_file(self, event):
         # Use a lock to prevent multiple simultaneous file selections
