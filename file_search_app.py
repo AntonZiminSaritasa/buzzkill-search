@@ -252,7 +252,6 @@ class FileSearchApp:
         
         # Ensure text area is enabled and visible
         self.content_text.configure(state='normal')
-        self.content_text.frame.configure(bg='white')
         
         # Test text display
         self.content_text.delete('1.0', tk.END)
