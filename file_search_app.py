@@ -151,7 +151,6 @@ class FileSearchApp:
         
         # Text area for file content with line numbers
         self.content_text = LineNumberedText(right_frame, width=70, height=30, wrap=tk.NONE)
-        self.content_text.set_listbox(self.result_list)  # Set reference to listbox
         
         # Add horizontal scrollbar for text area
         text_scrollbar = ttk.Scrollbar(right_frame, orient=tk.HORIZONTAL, command=self.content_text.xview)
@@ -171,6 +170,9 @@ class FileSearchApp:
         # Create context menu
         self.context_menu = tk.Menu(root, tearoff=0)
         self.context_menu.add_command(label="Reveal in File Explorer", command=self.reveal_in_explorer)
+        
+        # Store last selection
+        self._last_selection = None
         
         # Search queue and thread
         self.search_queue = queue.Queue()
@@ -192,6 +194,16 @@ class FileSearchApp:
         # Result counter
         self.result_count = 0
         
+    def _on_listbox_focus_out(self, event):
+        # Store the current selection
+        self._last_selection = self.result_list.curselection()
+        
+    def _on_text_focus_in(self, event):
+        # Restore the listbox selection if it exists
+        if self._last_selection:
+            self.result_list.selection_set(self._last_selection[0])
+            self.result_list.see(self._last_selection[0])
+            
     def show_context_menu(self, event):
         # Get the index of the item under the cursor
         index = self.result_list.nearest(event.y)
@@ -358,6 +370,9 @@ class FileSearchApp:
             if not selection:
                 return
                 
+            # Store the selection
+            self._last_selection = selection
+                
             file_path = self.result_list.get(selection[0])
             if file_path.startswith("Error:"):
                 self.content_text.delete('1.0', tk.END)
@@ -410,16 +425,6 @@ class FileSearchApp:
                 
     def update_content(self, content):
         self.content_text.update_content(content)
-
-    def _on_listbox_focus_out(self, event):
-        # Store the current selection
-        self._last_selection = self.result_list.curselection()
-        
-    def _on_text_focus_in(self, event):
-        # Restore the listbox selection if it exists
-        if hasattr(self, '_last_selection') and self._last_selection:
-            self.result_list.selection_set(self._last_selection[0])
-            self.result_list.see(self._last_selection[0])
 
 if __name__ == "__main__":
     root = tk.Tk()
