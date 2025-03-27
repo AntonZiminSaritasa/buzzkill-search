@@ -482,3 +482,5 @@ file search does not work
 1. The responsive design got broken when the animation was integrated. The list view and text area are anchored to the bottom. Their height does not change.
 
 1. Make the text area read only
+
+1. Vertical scroll disappeared for the text area
