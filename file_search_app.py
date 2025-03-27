@@ -11,6 +11,8 @@ import win32con
 import win32api
 from PIL import Image, ImageTk
 import io
+import win32com.shell.shell as shell
+import win32com.shell.shellcon as shellcon
 
 class IconListbox(tk.Listbox):
     def __init__(self, master, **kwargs):
@@ -28,36 +30,32 @@ class IconListbox(tk.Listbox):
             icon = self._get_file_icon(file_path)
             if icon:
                 self.icon_cache[index] = icon
-                # Insert with icon
-                self.insert(tk.END, "  ")  # Space for icon
-                self.itemconfig(index, image=icon)
+                # Insert with icon and filename
                 self.insert(tk.END, os.path.basename(file_path))
+                self.itemconfig(index, image=icon)
             else:
-                self.insert(tk.END, file_path)
+                self.insert(tk.END, os.path.basename(file_path))
         except Exception as e:
             print(f"Error inserting file with icon: {e}")
-            self.insert(tk.END, file_path)
+            self.insert(tk.END, os.path.basename(file_path))
             
     def _get_file_icon(self, file_path):
         try:
-            # Get file info using Shell_NotifyIcon
-            large, small = win32gui.ExtractIconEx(file_path, 0)
-            if not small:
-                return None
-                
-            # Get icon handle
-            icon_handle = small[0]
-            if not icon_handle:
+            # Get SHFILEINFO structure
+            flags = shellcon.SHGFI_ICON | shellcon.SHGFI_SMALLICON
+            file_info = shell.SHGetFileInfo(file_path, 0, flags)[0]
+            
+            if not file_info.hIcon:
                 return None
                 
             # Create DC and bitmap
-            dc = win32gui.GetDC(self.winfo_id())
-            bitmap = win32gui.CreateCompatibleBitmap(dc, 16, 16)
+            dc = win32gui.GetDC(0)
             memdc = win32gui.CreateCompatibleDC(dc)
+            bitmap = win32gui.CreateCompatibleBitmap(dc, 16, 16)
             old_bitmap = win32gui.SelectObject(memdc, bitmap)
             
             # Draw icon
-            win32gui.DrawIconEx(memdc, 0, 0, icon_handle, 16, 16, 0, None, win32con.DI_NORMAL)
+            win32gui.DrawIconEx(memdc, 0, 0, file_info.hIcon, 16, 16, 0, None, win32con.DI_NORMAL)
             
             # Convert to PIL Image
             bmpinfo = win32gui.GetBitmapInfo(bitmap)
@@ -71,8 +69,8 @@ class IconListbox(tk.Listbox):
             win32gui.SelectObject(memdc, old_bitmap)
             win32gui.DeleteObject(bitmap)
             win32gui.DeleteDC(memdc)
-            win32gui.ReleaseDC(self.winfo_id(), dc)
-            win32gui.DestroyIcon(icon_handle)
+            win32gui.ReleaseDC(0, dc)
+            win32gui.DestroyIcon(file_info.hIcon)
             
             # Convert to PhotoImage
             return ImageTk.PhotoImage(im)
