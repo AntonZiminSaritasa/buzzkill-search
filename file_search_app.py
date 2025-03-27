@@ -254,7 +254,7 @@ class FileSearchApp:
         # Spinner
         self.spinner_running = False
         self.spinner_index = 0
-        self.spinner_chars = ["|", "/", "-", "\\"]
+        self.spinner_chars = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
         
     def show_context_menu(self, event):
         # Get the index of the item under the cursor
