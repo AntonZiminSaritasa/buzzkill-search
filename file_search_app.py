@@ -161,7 +161,7 @@ class FileSearchApp:
         
         # Left frame for list
         left_frame = ttk.Frame(main_frame)
-        left_frame.grid(row=2, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        left_frame.grid(row=3, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Configure left frame grid weights
         left_frame.grid_rowconfigure(0, weight=1)
@@ -178,7 +178,7 @@ class FileSearchApp:
         
         # Right frame for content
         right_frame = ttk.Frame(main_frame)
-        right_frame.grid(row=2, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(10, 0))
+        right_frame.grid(row=3, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(10, 0))
         
         # Configure right frame grid weights
         right_frame.grid_rowconfigure(0, weight=1)
@@ -194,7 +194,7 @@ class FileSearchApp:
         
         # Add status bar at the bottom
         self.status_bar = ttk.Label(main_frame, text="", anchor=tk.W, padding=(5, 2))
-        self.status_bar.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(5, 0))
+        self.status_bar.grid(row=4, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(5, 0))
         
         # Configure text area with proper styling
         self.content_text.configure(

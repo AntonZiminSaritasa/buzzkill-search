@@ -29,24 +29,22 @@ import time
 
 class SubwaySurferAnimation:
     def __init__(self, parent):
-        self.window = tk.Toplevel(parent)
-        self.window.title("Searching...")
-        self.window.geometry("400x300")
-        self.window.transient(parent)
-        self.window.grab_set()
+        # Create frame for animation
+        self.frame = ttk.Frame(parent)
+        self.frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
         
         # Create canvas
-        self.canvas = tk.Canvas(self.window, width=400, height=300, bg='#87CEEB')
-        self.canvas.pack(fill=tk.BOTH, expand=True)
+        self.canvas = tk.Canvas(self.frame, width=400, height=100, bg='#87CEEB')
+        self.canvas.pack(fill=tk.X, expand=True)
         
         # Animation parameters
         self.character_x = 100
-        self.character_y = 200
+        self.character_y = 60
         self.character_jumping = False
         self.jump_velocity = 0
         self.gravity = 0.8
         self.jump_power = -15
-        self.ground_y = 250
+        self.ground_y = 80
         self.coins = []
         self.trains = []
         self.score = 0
@@ -62,7 +60,7 @@ class SubwaySurferAnimation:
         
     def create_ground(self):
         # Draw ground
-        self.canvas.create_rectangle(0, self.ground_y, 400, 300, fill='#8B4513')
+        self.canvas.create_rectangle(0, self.ground_y, 400, 100, fill='#8B4513')
         # Draw train tracks
         for i in range(0, 400, 30):
             self.canvas.create_line(i, self.ground_y, i+20, self.ground_y, fill='#808080', width=2)
@@ -177,7 +175,7 @@ class SubwaySurferAnimation:
         if not self.character_jumping and random.random() < 0.02:
             self.jump()
             
-        self.window.after(16, self.animate)  # ~60 FPS
+        self.frame.after(16, self.animate)  # ~60 FPS
         
     def close(self):
-        self.window.destroy() 
+        self.frame.destroy() 
