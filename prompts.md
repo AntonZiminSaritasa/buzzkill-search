@@ -603,3 +603,6 @@ cannot mmap an empty file
 1. Can you skip binary files?
 
 1. Why did you revert requirements.txt, LICENSE, and README.md again?
+
+1. Why did you make another change? The code to skip empty and binary files was removed. requirements.txt is incorrect. LICENSE is gone. README.md lost most of its content.
+
