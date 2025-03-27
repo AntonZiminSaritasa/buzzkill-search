@@ -16,19 +16,17 @@ import io
 
 class LineNumberedText(tk.Text):
     def __init__(self, master, **kwargs):
-        super().__init__(master, **kwargs)
+        # Create a frame to hold both widgets
+        self.frame = ttk.Frame(master)
         
         # Create line numbers text widget
-        self.line_numbers = tk.Text(master, width=4, padx=3, takefocus=0, border=0,
+        self.line_numbers = tk.Text(self.frame, width=4, padx=3, takefocus=0, border=0,
                                   background='lightgray', state='disabled', wrap=tk.NONE)
-        self.line_numbers.grid(row=0, column=0, sticky=(tk.N, tk.S))
+        self.line_numbers.pack(side=tk.LEFT, fill=tk.Y)
         
-        # Configure the main text widget
-        self.grid(row=0, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
-        
-        # Configure grid weights
-        master.grid_rowconfigure(0, weight=1)
-        master.grid_columnconfigure(1, weight=1)
+        # Create the main text widget
+        super().__init__(self.frame, **kwargs)
+        self.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
         # Bind events
         self.bind('<Key>', self._on_key)
@@ -92,6 +90,14 @@ class LineNumberedText(tk.Text):
             self.master.update_idletasks()
         except Exception as e:
             print("Error updating content: {0}".format(e))
+            
+    def grid(self, **kwargs):
+        # Override grid to place the frame instead of the text widget
+        self.frame.grid(**kwargs)
+        
+    def pack(self, **kwargs):
+        # Override pack to place the frame instead of the text widget
+        self.frame.pack(**kwargs)
 
 class IconListbox(tk.Listbox):
     def __init__(self, master, **kwargs):
@@ -251,14 +257,15 @@ class FileSearchApp:
         
         # Configure right frame grid weights
         right_frame.grid_rowconfigure(0, weight=1)
-        right_frame.grid_columnconfigure(1, weight=1)
+        right_frame.grid_columnconfigure(0, weight=1)
         
         # Text area for file content with line numbers
         self.content_text = LineNumberedText(right_frame, width=70, height=30, wrap=tk.NONE)
+        self.content_text.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Add horizontal scrollbar for text area
         text_scrollbar = ttk.Scrollbar(right_frame, orient=tk.HORIZONTAL, command=self.content_text.xview)
-        text_scrollbar.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E))
+        text_scrollbar.grid(row=1, column=0, sticky=(tk.W, tk.E))
         self.content_text.configure(xscrollcommand=text_scrollbar.set)
         
         # Configure text area
