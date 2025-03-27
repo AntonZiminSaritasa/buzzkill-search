@@ -110,23 +110,27 @@ class IconListbox(tk.Listbox):
         
     def insert_with_icon(self, index, file_path):
         try:
+            # Get the actual index where the item will be inserted
+            actual_index = self.size() if index == tk.END else index
+            
             # Store the full path first
-            self.paths[index] = file_path
+            self.paths[actual_index] = file_path
             
             # Get or create icon for the file
             icon = self._get_file_icon(file_path)
             if icon:
                 # Insert with icon
                 super().insert(index, " " + os.path.basename(file_path))
-                self.icons[index] = icon
+                self.icons[actual_index] = icon
                 # Configure the item to show the icon
-                self.itemconfig(index, image=icon)
+                self.itemconfig(actual_index, image=icon)
             else:
                 # Insert without icon
                 super().insert(index, os.path.basename(file_path))
         except Exception as e:
             print(f"Error inserting file {file_path}: {e}")
-            self.paths[index] = file_path
+            actual_index = self.size() if index == tk.END else index
+            self.paths[actual_index] = file_path
             super().insert(index, os.path.basename(file_path))
             
     def delete_all(self):
