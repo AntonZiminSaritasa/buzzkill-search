@@ -123,7 +123,7 @@ class FileSearchApp:
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Configure main frame grid weights
-        main_frame.grid_rowconfigure(2, weight=1)
+        main_frame.grid_rowconfigure(3, weight=1)  # Changed from 2 to 3 to match new layout
         main_frame.grid_columnconfigure(0, weight=1)
         main_frame.grid_columnconfigure(1, weight=1)
         
@@ -187,9 +187,14 @@ class FileSearchApp:
         # Text area for file content with line numbers
         self.content_text = LineNumberedText(right_frame, width=70, height=30, wrap=tk.NONE)
         
+        # Add vertical scrollbar for text area
+        text_v_scrollbar = ttk.Scrollbar(right_frame, orient=tk.VERTICAL, command=self.content_text.yview)
+        text_v_scrollbar.grid(row=0, column=2, sticky=(tk.N, tk.S))
+        self.content_text.configure(yscrollcommand=text_v_scrollbar.set)
+        
         # Add horizontal scrollbar for text area
         text_scrollbar = ttk.Scrollbar(right_frame, orient=tk.HORIZONTAL, command=self.content_text.xview)
-        text_scrollbar.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E))  # Added columnspan=2 to span both columns
+        text_scrollbar.grid(row=1, column=0, columnspan=3, sticky=(tk.W, tk.E))  # Updated columnspan to include vertical scrollbar
         self.content_text.configure(xscrollcommand=text_scrollbar.set)
         
         # Add status bar at the bottom

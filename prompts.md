@@ -494,3 +494,5 @@ file search does not work
         from subway_surfer_animation import SubwaySurferAnimation
     ModuleNotFoundError: No module named 'subway_surfer_animation'
     ```
+
+1. The responsive layout is broken again.
