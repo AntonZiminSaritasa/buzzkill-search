@@ -57,7 +57,7 @@ class LineNumberedText(tk.Text):
         self.line_numbers.config(state='normal')
         self.line_numbers.delete('1.0', tk.END)
         for i in range(1, lines + 1):
-            self.line_numbers.insert(tk.END, f'{i}\n')
+            self.line_numbers.insert(tk.END, '{0}\n'.format(i))
         self.line_numbers.config(state='disabled')
         
         # Sync scrollbars
