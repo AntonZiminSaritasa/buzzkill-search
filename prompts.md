@@ -568,3 +568,5 @@ sdb, mui, ttf, mkv, wav, raw, etl
 1. Review the requirements.txt file.
 
 1. It uses subprocess, not pywin32.
+
+1. Why did you delete all instructions from README.md?
