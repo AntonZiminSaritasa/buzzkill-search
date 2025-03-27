@@ -403,10 +403,6 @@ class FileSearchApp:
         dialog.destroy()
         
     def on_search_change(self, *args):
-        # Cancel any pending search
-        if self.search_after_id:
-            self.root.after_cancel(self.search_after_id)
-        
         # Get current search term
         search_term = self.search_var.get().strip()
         
@@ -423,8 +419,8 @@ class FileSearchApp:
         if search_term == self.last_search_term:
             return
             
-        # Schedule new search after delay
-        self.search_after_id = self.root.after(500, self.perform_search, search_term)
+        # Start search immediately
+        self.perform_search(search_term)
         
     def perform_search(self, search_term):
         # Update last search term
@@ -459,6 +455,9 @@ class FileSearchApp:
             
     def search_files(self, search_term):
         try:
+            # Convert search term to lowercase once
+            search_term_lower = search_term.lower()
+            
             for root, _, files in os.walk(self.search_path):
                 if not self.search_running:
                     break
@@ -478,13 +477,19 @@ class FileSearchApp:
                             self.root.after(0, self.add_result, f"Maximum number of results ({self.max_results}) reached.")
                             return
                             
+                        # Check filename first for faster filtering
+                        if search_term_lower in file.lower():
+                            self.root.after(0, self.add_result, str(file_path))
+                            self.result_count += 1
+                            continue
+                            
                         with open(file_path, 'r', encoding='utf-8') as f:
                             # Read file in chunks to save memory
                             while True:
                                 chunk = f.read(8192)  # Read 8KB at a time
                                 if not chunk:
                                     break
-                                if search_term.lower() in chunk.lower():
+                                if search_term_lower in chunk.lower():
                                     self.root.after(0, self.add_result, str(file_path))
                                     self.result_count += 1
                                     break

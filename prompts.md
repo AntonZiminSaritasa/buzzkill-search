@@ -498,3 +498,5 @@ file search does not work
 1. The responsive layout is broken again.
 
 1. Why did you change the spinner icon?
+
+1. The search must be instant.
