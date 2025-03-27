@@ -119,6 +119,8 @@ class IconListbox(tk.Listbox):
                 # Insert with icon
                 super().insert(index, " " + os.path.basename(file_path))
                 self.icons[index] = icon
+                # Configure the item to show the icon
+                self.itemconfig(index, image=icon)
             else:
                 # Insert without icon
                 super().insert(index, os.path.basename(file_path))
@@ -566,9 +568,6 @@ class FileSearchApp:
             
             # Insert new content
             self.content_text.insert('1.0', content)
-            
-            # Update line numbers
-            self.content_text._update_line_numbers()
             
             # Ensure the text area is visible
             self.content_text.see('1.0')
