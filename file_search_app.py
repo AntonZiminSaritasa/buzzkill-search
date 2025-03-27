@@ -99,7 +99,7 @@ class LineNumberedText(tk.Text):
         self.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
         # Configure the main text widget
-        self.configure(wrap=tk.NONE)
+        self.configure(wrap=tk.NONE, state='normal')
         
         # Bind events
         self.bind('<Key>', self._on_key)
@@ -276,12 +276,14 @@ class FileSearchApp:
         self.content_text.configure(xscrollcommand=text_scrollbar.set)
         
         # Configure text area
-        self.content_text.configure(font=('Courier', 10), background='white')
+        self.content_text.configure(font=('Courier', 10), background='white', state='normal')
         self.content_text.line_numbers.configure(font=('Courier', 10))
         
         # Ensure text area is enabled and visible
-        self.content_text.configure(state='normal')
         self.content_text.frame.configure(bg='white')
+        
+        # Test text display
+        self.content_text.insert('1.0', "Ready to display file content...")
         
         # Bind listbox selection event
         self.result_list.bind('<<ListboxSelect>>', self.on_select_file)
