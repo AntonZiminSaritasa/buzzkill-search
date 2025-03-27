@@ -165,8 +165,8 @@ class FileSearchApp:
         left_frame.grid_rowconfigure(0, weight=1)
         left_frame.grid_columnconfigure(0, weight=1)
         
-        # Listbox for results
-        self.result_list = tk.Listbox(left_frame, width=70, height=30)
+        # Listbox for results with icons
+        self.result_list = IconListbox(left_frame, width=70, height=30, exportselection=False)
         self.result_list.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Scrollbar for listbox
@@ -194,6 +194,9 @@ class FileSearchApp:
         # Configure text area
         self.content_text.configure(font=('Courier', 10))
         self.content_text.line_numbers.configure(font=('Courier', 10))
+        
+        # Ensure text area is enabled
+        self.content_text.configure(state='normal')
         
         # Bind listbox selection event
         self.result_list.bind('<<ListboxSelect>>', self.on_select_file)
@@ -378,8 +381,12 @@ class FileSearchApp:
             
     def add_result(self, file_path):
         if self.search_running:  # Only add if search is still running
-            self.result_list.insert(tk.END, file_path)
-            self.result_list.see(tk.END)
+            try:
+                self.result_list.insert_with_icon(file_path)
+                self.result_list.see(tk.END)
+            except Exception as e:
+                print(f"Error adding result: {e}")
+                self.result_list.insert(tk.END, file_path)  # Fallback to regular insert
         
     def on_select_file(self, event):
         # Use a lock to prevent multiple simultaneous file selections
