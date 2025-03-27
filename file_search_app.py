@@ -33,6 +33,7 @@ import time
 import queue
 import re
 from datetime import datetime
+from subway_surfer_animation import SubwaySurferAnimation
 
 class LineNumberedText(tk.Text):
     def __init__(self, master, **kwargs):
@@ -281,6 +282,10 @@ class FileSearchApp:
                 self.search_thread.join(timeout=1.0)  # Wait up to 1 second for thread to finish
             self.search_thread = None
             self.result_count = 0
+            # Close animation if it exists
+            if hasattr(self, 'animation'):
+                self.animation.close()
+                delattr(self, 'animation')
             
     def load_last_directory(self):
         try:
@@ -350,6 +355,9 @@ class FileSearchApp:
         
         # Enable cancel button
         self.cancel_button.config(state='normal')
+        
+        # Start animation
+        self.animation = SubwaySurferAnimation(self.root)
         
         # Start new search
         self.search_running = True
