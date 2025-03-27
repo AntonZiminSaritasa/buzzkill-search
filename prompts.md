@@ -579,3 +579,6 @@ sdb, mui, ttf, mkv, wav, raw, etl
 
 1. Should we replace python with python3 in the instructions?
 
+1. Add a note to the top disclaimer section in README.md that 2 files were created by human:<br>
+.gitignore<br>
+.prompts.md
