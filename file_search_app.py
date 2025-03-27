@@ -108,9 +108,10 @@ class FileSearchApp:
         root.grid_rowconfigure(0, weight=1)
         root.grid_columnconfigure(0, weight=1)
         
-        # Load last directory
+        # Load last directory and recent directories
         self.last_dir_file = os.path.join(os.path.expanduser("~"), ".file_search_app", "last_directory.json")
         self.search_path = self.load_last_directory()
+        self.recent_dirs = self.load_recent_directories()
         
         # Memory limits
         self.max_file_size = 10 * 1024 * 1024  # 10MB
@@ -319,20 +320,84 @@ class FileSearchApp:
         except Exception:
             pass
             
+    def load_recent_directories(self):
+        try:
+            if os.path.exists(self.last_dir_file):
+                with open(self.last_dir_file, 'r') as f:
+                    data = json.load(f)
+                    return data.get('recent_directories', [])
+        except Exception:
+            pass
+        return []
+        
+    def save_recent_directories(self):
+        try:
+            # Create directory if it doesn't exist
+            os.makedirs(os.path.dirname(self.last_dir_file), exist_ok=True)
+            
+            # Load existing data
+            data = {}
+            if os.path.exists(self.last_dir_file):
+                with open(self.last_dir_file, 'r') as f:
+                    data = json.load(f)
+            
+            # Update recent directories
+            if self.search_path not in self.recent_dirs:
+                self.recent_dirs.insert(0, self.search_path)
+                # Keep only the 5 most recent directories
+                self.recent_dirs = self.recent_dirs[:5]
+            
+            # Save updated data
+            data['last_directory'] = self.search_path
+            data['recent_directories'] = self.recent_dirs
+            
+            with open(self.last_dir_file, 'w') as f:
+                json.dump(data, f)
+        except Exception as e:
+            print(f"Error saving recent directories: {e}")
+            
     def pick_directory(self):
         try:
-            directory = filedialog.askdirectory(initialdir=self.search_path)
-            if directory:
-                self.search_path = directory
-                self.dir_label.config(text="Search Directory: " + self.search_path)
-                self.save_last_directory()
-                # Clear previous results
-                self.result_list.delete(0, tk.END)
-                self.content_text.delete('1.0', tk.END)
-                self.cancel_search()  # Cancel any ongoing search
-                self.result_count = 0
+            # Create a popup menu for recent directories
+            menu = tk.Menu(self.root, tearoff=0)
+            
+            # Add recent directories to menu
+            for dir_path in self.recent_dirs:
+                if dir_path != self.search_path:  # Don't add current directory
+                    menu.add_command(label=dir_path, command=lambda d=dir_path: self.select_directory(d))
+            
+            # Add separator and browse option
+            menu.add_separator()
+            menu.add_command(label="Browse...", command=self.browse_directory)
+            
+            # Get button position
+            button = self.root.focus_get()
+            if button:
+                x = button.winfo_rootx()
+                y = button.winfo_rooty() + button.winfo_height()
+                menu.post(x, y)
+            else:
+                # If no button focused, show menu at mouse position
+                menu.post(self.root.winfo_pointerx(), self.root.winfo_pointery())
+                
         except Exception as e:
-            print(f"Error picking directory: {e}")
+            print(f"Error showing directory menu: {e}")
+            
+    def select_directory(self, directory):
+        if os.path.exists(directory):
+            self.search_path = directory
+            self.dir_label.config(text="Search Directory: " + self.search_path)
+            self.save_recent_directories()
+            # Clear previous results
+            self.result_list.delete(0, tk.END)
+            self.content_text.delete('1.0', tk.END)
+            self.cancel_search()  # Cancel any ongoing search
+            self.result_count = 0
+            
+    def browse_directory(self):
+        directory = filedialog.askdirectory(initialdir=self.search_path)
+        if directory:
+            self.select_directory(directory)
         
     def on_search_change(self, *args):
         # Cancel any pending search
