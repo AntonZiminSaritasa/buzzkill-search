@@ -99,7 +99,7 @@ class LineNumberedText(tk.Text):
         self.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
         # Configure the main text widget
-        self.configure(wrap=tk.NONE, state='normal', background='white')
+        self.configure(wrap=tk.NONE, background='white')
         
         # Bind events
         self.bind('<Key>', self._on_key)
@@ -148,9 +148,6 @@ class LineNumberedText(tk.Text):
     def update_content(self, content):
         try:
             print(f"LineNumberedText updating content with length: {len(content)}")
-            
-            # Enable text widget
-            self.configure(state='normal')
             
             # Clear existing content
             self.delete('1.0', tk.END)
@@ -282,6 +279,7 @@ class FileSearchApp:
         # Test text display
         self.content_text.delete('1.0', tk.END)
         self.content_text.insert('1.0', "Ready to display file content...")
+        self.content_text._update_line_numbers()
         
         # Bind listbox selection event
         self.result_list.bind('<<ListboxSelect>>', self.on_select_file)
