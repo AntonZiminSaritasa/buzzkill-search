@@ -53,6 +53,11 @@ class LineNumberedText(tk.Text):
     def configure(self, **kwargs):
         super().configure(**kwargs)
         self._update_line_numbers()
+        
+    def update_content(self, content):
+        self.delete('1.0', tk.END)
+        self.insert('1.0', content)
+        self._update_line_numbers()
 
 class FileSearchApp:
     def __init__(self, root):
@@ -381,8 +386,7 @@ class FileSearchApp:
                 self.root.after(0, self.update_content, "Error reading file: {}".format(str(e)))
                 
     def update_content(self, content):
-        self.content_text.delete('1.0', tk.END)
-        self.content_text.insert('1.0', content)
+        self.content_text.update_content(content)
 
 if __name__ == "__main__":
     root = tk.Tk()
