@@ -99,7 +99,7 @@ class LineNumberedText(tk.Text):
         self.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
         # Configure the main text widget
-        self.configure(wrap=tk.NONE, background='white', state='normal')
+        self.configure(wrap=tk.NONE, background='white')
         
         # Bind events
         self.bind('<Key>', self._on_key)
@@ -149,9 +149,6 @@ class LineNumberedText(tk.Text):
         try:
             print(f"LineNumberedText updating content with length: {len(content)}")
             
-            # Ensure text widget is enabled
-            self.configure(state='normal')
-            
             # Clear existing content
             self.delete('1.0', tk.END)
             
@@ -167,9 +164,6 @@ class LineNumberedText(tk.Text):
             # Force update
             self.master.update_idletasks()
             
-            # Ensure text widget stays enabled
-            self.configure(state='normal')
-            
             print("LineNumberedText content update completed")
         except Exception as e:
             print(f"Error updating LineNumberedText content: {e}")
@@ -181,6 +175,40 @@ class LineNumberedText(tk.Text):
     def pack(self, **kwargs):
         # Override pack to place the frame instead of the text widget
         self.frame.pack(**kwargs)
+
+    def read_file_content(self, file_path):
+        try:
+            print(f"Reading file: {file_path}")
+            # Check file size before reading
+            if Path(file_path).stat().st_size > self.max_file_size:
+                print("File too large")
+                self.root.after(0, lambda: self.content_text.update_content("File is too large to display (>10MB)"))
+                return
+                
+            with open(file_path, 'r', encoding='utf-8') as f:
+                # Read file in chunks to save memory
+                content = []
+                while True:
+                    chunk = f.read(8192)  # Read 8KB at a time
+                    if not chunk:
+                        break
+                    content.append(chunk)
+                    if len(''.join(content)) > self.max_file_size:
+                        content = [''.join(content)[:self.max_file_size] + "\n... (file truncated)"]
+                        break
+                        
+                if self.file_running:  # Only update if we haven't cancelled
+                    print(f"Updating content for {file_path}")
+                    final_content = ''.join(content)
+                    print(f"Content length: {len(final_content)}")
+                    self.root.after(0, lambda: self.content_text.update_content(final_content))
+                    
+                    # Force update of the text area
+                    self.root.after(100, lambda: self.content_text.see('1.0'))
+        except Exception as e:
+            print(f"Error reading file {file_path}: {e}")
+            if self.file_running:  # Only update if we haven't cancelled
+                self.root.after(0, lambda: self.content_text.update_content("Error reading file: {}".format(str(e))))
 
 class FileSearchApp:
     def __init__(self, root):
@@ -525,44 +553,6 @@ class FileSearchApp:
         finally:
             self.file_selection_lock.release()
         
-    def read_file_content(self, file_path):
-        try:
-            print(f"Reading file: {file_path}")
-            # Check file size before reading
-            if Path(file_path).stat().st_size > self.max_file_size:
-                print("File too large")
-                self.root.after(0, lambda: self.content_text.update_content("File is too large to display (>10MB)"))
-                return
-                
-            with open(file_path, 'r', encoding='utf-8') as f:
-                # Read file in chunks to save memory
-                content = []
-                while True:
-                    chunk = f.read(8192)  # Read 8KB at a time
-                    if not chunk:
-                        break
-                    content.append(chunk)
-                    if len(''.join(content)) > self.max_file_size:
-                        content = [''.join(content)[:self.max_file_size] + "\n... (file truncated)"]
-                        break
-                        
-                if self.file_running:  # Only update if we haven't cancelled
-                    print(f"Updating content for {file_path}")
-                    final_content = ''.join(content)
-                    print(f"Content length: {len(final_content)}")
-                    
-                    # Ensure text widget is enabled before updating
-                    self.root.after(0, lambda: self.content_text.configure(state='normal'))
-                    self.root.after(0, lambda: self.content_text.update_content(final_content))
-                    
-                    # Force update of the text area
-                    self.root.after(100, lambda: self.content_text.see('1.0'))
-        except Exception as e:
-            print(f"Error reading file {file_path}: {e}")
-            if self.file_running:  # Only update if we haven't cancelled
-                self.root.after(0, lambda: self.content_text.configure(state='normal'))
-                self.root.after(0, lambda: self.content_text.update_content("Error reading file: {}".format(str(e))))
-                
     def update_content(self, content):
         try:
             print(f"Updating content with length: {len(content)}")
