@@ -176,40 +176,6 @@ class LineNumberedText(tk.Text):
         # Override pack to place the frame instead of the text widget
         self.frame.pack(**kwargs)
 
-    def read_file_content(self, file_path):
-        try:
-            print(f"Reading file: {file_path}")
-            # Check file size before reading
-            if Path(file_path).stat().st_size > self.max_file_size:
-                print("File too large")
-                self.root.after(0, lambda: self.content_text.update_content("File is too large to display (>10MB)"))
-                return
-                
-            with open(file_path, 'r', encoding='utf-8') as f:
-                # Read file in chunks to save memory
-                content = []
-                while True:
-                    chunk = f.read(8192)  # Read 8KB at a time
-                    if not chunk:
-                        break
-                    content.append(chunk)
-                    if len(''.join(content)) > self.max_file_size:
-                        content = [''.join(content)[:self.max_file_size] + "\n... (file truncated)"]
-                        break
-                        
-                if self.file_running:  # Only update if we haven't cancelled
-                    print(f"Updating content for {file_path}")
-                    final_content = ''.join(content)
-                    print(f"Content length: {len(final_content)}")
-                    self.root.after(0, lambda: self.content_text.update_content(final_content))
-                    
-                    # Force update of the text area
-                    self.root.after(100, lambda: self.content_text.see('1.0'))
-        except Exception as e:
-            print(f"Error reading file {file_path}: {e}")
-            if self.file_running:  # Only update if we haven't cancelled
-                self.root.after(0, lambda: self.content_text.update_content("Error reading file: {}".format(str(e))))
-
 class FileSearchApp:
     def __init__(self, root):
         self.root = root
@@ -553,33 +519,39 @@ class FileSearchApp:
         finally:
             self.file_selection_lock.release()
         
-    def update_content(self, content):
+    def read_file_content(self, file_path):
         try:
-            print(f"Updating content with length: {len(content)}")
-            # Ensure text widget is enabled
-            self.content_text.configure(state='normal')
-            
-            # Clear existing content
-            self.content_text.delete('1.0', tk.END)
-            
-            # Insert new content
-            self.content_text.insert('1.0', content)
-            
-            # Update line numbers
-            self.content_text._update_line_numbers()
-            
-            # Ensure the text area is visible
-            self.content_text.see('1.0')
-            
-            # Force update
-            self.root.update_idletasks()
-            
-            # Ensure text widget stays enabled
-            self.content_text.configure(state='normal')
-            
-            print("Content update completed")
+            print(f"Reading file: {file_path}")
+            # Check file size before reading
+            if Path(file_path).stat().st_size > self.max_file_size:
+                print("File too large")
+                self.root.after(0, lambda: self.content_text.update_content("File is too large to display (>10MB)"))
+                return
+                
+            with open(file_path, 'r', encoding='utf-8') as f:
+                # Read file in chunks to save memory
+                content = []
+                while True:
+                    chunk = f.read(8192)  # Read 8KB at a time
+                    if not chunk:
+                        break
+                    content.append(chunk)
+                    if len(''.join(content)) > self.max_file_size:
+                        content = [''.join(content)[:self.max_file_size] + "\n... (file truncated)"]
+                        break
+                        
+                if self.file_running:  # Only update if we haven't cancelled
+                    print(f"Updating content for {file_path}")
+                    final_content = ''.join(content)
+                    print(f"Content length: {len(final_content)}")
+                    self.root.after(0, lambda: self.content_text.update_content(final_content))
+                    
+                    # Force update of the text area
+                    self.root.after(100, lambda: self.content_text.see('1.0'))
         except Exception as e:
-            print(f"Error updating content: {e}")
+            print(f"Error reading file {file_path}: {e}")
+            if self.file_running:  # Only update if we haven't cancelled
+                self.root.after(0, lambda: self.content_text.update_content("Error reading file: {}".format(str(e))))
 
 if __name__ == "__main__":
     root = tk.Tk()
