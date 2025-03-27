@@ -70,4 +70,4 @@ Anton Zimin
 
 ## Disclaimer
 
-All code in this project was written by Anton Zimin. While the project is licensed under the MIT License, please note that the implementation, including all classes, methods, and functionality, is the original work of the author. 
+All code in this project was written by Cursor AI. While the project is licensed under the MIT License, please note that the implementation, including all classes, methods, and functionality, is the original work of Cursor AI. 
