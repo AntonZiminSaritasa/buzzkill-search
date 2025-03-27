@@ -231,8 +231,10 @@ class FileSearchApp:
         if not selection:
             return
             
-        file_path = self.result_list.get(selection[0])
-        if file_path.startswith("Error:"):
+        # Get the full path from our dictionary
+        index = selection[0]
+        file_path = self.file_paths.get(index)
+        if not file_path or file_path.startswith("Error:"):
             return
             
         try:
@@ -372,6 +374,13 @@ class FileSearchApp:
     def add_result(self, file_path):
         if self.search_running:  # Only add if search is still running
             try:
+                # Store full path in a dictionary using index as key
+                index = self.result_list.size()
+                if not hasattr(self, 'file_paths'):
+                    self.file_paths = {}
+                self.file_paths[index] = str(file_path)
+                
+                # Insert just the filename in the listbox
                 self.result_list.insert(tk.END, os.path.basename(file_path))
                 self.result_list.see(tk.END)
             except Exception as e:
@@ -387,7 +396,12 @@ class FileSearchApp:
             if not selection:
                 return
                 
-            file_path = self.result_list.get(selection[0])
+            # Get the full path from our dictionary
+            index = selection[0]
+            file_path = self.file_paths.get(index)
+            if not file_path:
+                return
+                
             if file_path.startswith("Error:"):
                 self.content_text.delete('1.0', tk.END)
                 self.content_text.insert('1.0', file_path)
