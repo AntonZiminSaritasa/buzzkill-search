@@ -79,13 +79,18 @@ class IconListbox(tk.Listbox):
         self.paths = {}  # Cache for full file paths
         
     def insert_with_icon(self, index, file_path):
-        # Get or create icon for the file
-        icon = self._get_file_icon(file_path)
-        if icon:
-            super().insert(index, " " + os.path.basename(file_path))  # Add space for icon
-            self.icons[index] = icon
-            self.paths[index] = file_path
-        else:
+        try:
+            # Get or create icon for the file
+            icon = self._get_file_icon(file_path)
+            if icon:
+                super().insert(index, " " + os.path.basename(file_path))  # Add space for icon
+                self.icons[index] = icon
+                self.paths[index] = file_path
+            else:
+                super().insert(index, os.path.basename(file_path))
+                self.paths[index] = file_path
+        except Exception as e:
+            print("Error inserting file {0}: {1}".format(file_path, e))
             super().insert(index, os.path.basename(file_path))
             self.paths[index] = file_path
             
@@ -100,13 +105,15 @@ class IconListbox(tk.Listbox):
     def _get_file_icon(self, file_path):
         try:
             # Get file info
-            flags = shellcon.SHGFI_ICON | shellcon.SHGFI_SMALLICON | shellcon.SHGFI_SYSICONINDEX
+            flags = shellcon.SHGFI_ICON | shellcon.SHGFI_SMALLICON
             file_info = shell.SHGetFileInfo(file_path, 0, flags)[0]
             
-            # Get system image list
-            sys_image_list = win32gui.ImageList_GetHandle(file_info[3])
-            
-            # Extract icon from system image list
+            # Get icon handle
+            icon_handle = file_info[0]
+            if not icon_handle:
+                return None
+                
+            # Create DC and bitmap
             hdc = win32ui.CreateDCFromHandle(win32gui.GetDC(0))
             hbmp = win32ui.CreateBitmap()
             hbmp.CreateCompatibleBitmap(hdc, 16, 16)
@@ -114,7 +121,7 @@ class IconListbox(tk.Listbox):
             hdc.SelectObject(hbmp)
             
             # Draw icon
-            win32gui.ImageList_Draw(sys_image_list, file_info[0], hdc.GetHandleOutput(), 0, 0, win32con.ILD_NORMAL)
+            win32gui.DrawIconEx(hdc.GetHandleOutput(), 0, 0, icon_handle, 16, 16, 0, None, win32con.DI_NORMAL)
             
             # Convert bitmap to bytes
             bmpstr = hbmp.GetBitmapBits(True)
@@ -128,6 +135,7 @@ class IconListbox(tk.Listbox):
             # Clean up
             win32gui.DeleteObject(hbmp.GetHandle())
             hdc.DeleteDC()
+            win32gui.DestroyIcon(icon_handle)
             
             return photo
         except Exception as e:
@@ -452,7 +460,10 @@ class FileSearchApp:
                 
             # Get the full file path from the paths cache
             file_path = self.result_list.get_full_path(selection[0])
-            if file_path.startswith("Error:"):
+            if not file_path:
+                return
+                
+            if isinstance(file_path, str) and file_path.startswith("Error:"):
                 self.content_text.delete('1.0', tk.END)
                 self.content_text.insert('1.0', file_path)
                 return
