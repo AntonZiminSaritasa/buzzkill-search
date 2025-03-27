@@ -94,9 +94,27 @@ class LineNumberedText(tk.Text):
         self._update_line_numbers()
         
     def update_content(self, content):
-        self.delete('1.0', tk.END)
-        self.insert('1.0', content)
-        self._update_line_numbers()
+        try:
+            # Enable text widget temporarily
+            self.configure(state='normal')
+            
+            # Clear existing content
+            self.delete('1.0', tk.END)
+            
+            # Insert new content
+            self.insert('1.0', content)
+            
+            # Update line numbers
+            self._update_line_numbers()
+            
+            # Ensure the text area is visible
+            self.see('1.0')
+            
+            # Make text widget read-only again
+            self.configure(state='disabled')
+            
+        except Exception as e:
+            print(f"Error updating content: {e}")
 
 class FileSearchApp:
     def __init__(self, root):
@@ -628,34 +646,6 @@ class FileSearchApp:
             if self.file_running:  # Only update if we haven't cancelled
                 self.root.after(0, lambda msg=error_msg: self.content_text.update_content(f"Error reading file: {msg}"))
                 
-    def update_content(self, content):
-        try:
-            print(f"Updating content with length: {len(content)}")
-            # Ensure text widget is enabled
-            self.content_text.configure(state='normal')
-            
-            # Clear existing content
-            self.content_text.delete('1.0', tk.END)
-            
-            # Insert new content
-            self.content_text.insert('1.0', content)
-            
-            # Update line numbers
-            self.content_text._update_line_numbers()
-            
-            # Ensure the text area is visible
-            self.content_text.see('1.0')
-            
-            # Force update
-            self.root.update_idletasks()
-            
-            # Make text widget read-only
-            self.content_text.configure(state='disabled')
-            
-            print("Content update completed")
-        except Exception as e:
-            print(f"Error updating content: {e}")
-
     def update_spinner(self):
         if self.spinner_running:
             self.spinner_index = (self.spinner_index + 1) % len(self.spinner_chars)

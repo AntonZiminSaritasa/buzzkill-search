@@ -540,3 +540,6 @@ file search does not work
 1. Why does it open the system dialog? Firstly it should show the list of recent directories.
 
 1. Why did the text area become editable again?
+
+1. It did not work.
+
