@@ -1,6 +1,8 @@
 """
 Buzzkill Search - A fast file search utility
 
+Disclaimer: All code in this project is written by Cursor AI. The project is licensed under the MIT License.
+
 MIT License
 
 Copyright (c) 2025 Anton Zimin
