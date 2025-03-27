@@ -21,13 +21,17 @@ class IconListbox(tk.Listbox):
     def insert_with_icon(self, file_path):
         try:
             # Store the full path
-            self.file_paths[self.size()] = file_path
+            index = self.size()
+            self.file_paths[index] = file_path
             
             # Get file icon
             icon = self._get_file_icon(file_path)
             if icon:
-                self.icon_cache[self.size()] = icon
-                self.insert(tk.END, f"  {os.path.basename(file_path)}")
+                self.icon_cache[index] = icon
+                # Insert with icon
+                self.insert(tk.END, "  ")  # Space for icon
+                self.itemconfig(index, image=icon)
+                self.insert(tk.END, os.path.basename(file_path))
             else:
                 self.insert(tk.END, file_path)
         except Exception as e:
@@ -36,8 +40,8 @@ class IconListbox(tk.Listbox):
             
     def _get_file_icon(self, file_path):
         try:
-            # Get file info
-            info = win32gui.SHGetFileInfo(file_path, 0, win32con.SHGFI_ICON | win32con.SHGFI_SMALLICON)
+            # Get file info with SHGFI_USEFILEATTRIBUTES flag
+            info = win32gui.SHGetFileInfo(file_path, 0, win32con.SHGFI_ICON | win32con.SHGFI_SMALLICON | win32con.SHGFI_USEFILEATTRIBUTES)
             if not info:
                 return None
                 
@@ -144,22 +148,25 @@ class LineNumberedText(tk.Text):
     def update_content(self, content):
         try:
             # Ensure text widget is enabled
-            self.configure(state='normal')
+            self.content_text.configure(state='normal')
             
             # Clear existing content
-            self.delete('1.0', tk.END)
+            self.content_text.delete('1.0', tk.END)
             
             # Insert new content
-            self.insert('1.0', content)
+            self.content_text.insert('1.0', content)
             
             # Update line numbers
-            self._update_line_numbers()
+            self.content_text._update_line_numbers()
             
             # Ensure the text area is visible
-            self.see('1.0')
+            self.content_text.see('1.0')
             
             # Force update
-            self.master.update_idletasks()
+            self.root.update_idletasks()
+            
+            # Ensure text widget stays enabled
+            self.content_text.configure(state='normal')
         except Exception as e:
             print(f"Error updating content: {e}")
             
@@ -540,6 +547,9 @@ class FileSearchApp:
             
             # Force update
             self.root.update_idletasks()
+            
+            # Ensure text widget stays enabled
+            self.content_text.configure(state='normal')
         except Exception as e:
             print(f"Error updating content: {e}")
 
