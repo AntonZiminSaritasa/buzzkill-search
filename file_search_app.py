@@ -51,19 +51,13 @@ class IconListbox(tk.Listbox):
         try:
             # Get SHFILEINFO structure
             flags = (shellcon.SHGFI_ICON | shellcon.SHGFI_SMALLICON | 
-                    shellcon.SHGFI_USEFILEATTRIBUTES | shellcon.SHGFI_SYSICONINDEX)
+                    shellcon.SHGFI_USEFILEATTRIBUTES)
             
             # Create SHFILEINFO structure
-            shinfo = shell.SHGetFileInfo(
-                file_path,  # Path
-                0,         # File attributes
-                flags,     # Flags
-                0,        # Icon size (0 for default)
-                0         # Reserved
-            )
+            shinfo = shell.SHGetFileInfo(file_path, 0, flags)
             
             # Extract icon handle from the returned tuple
-            icon_handle = shinfo[1]  # The icon handle is the second element
+            icon_handle = shinfo[0].hIcon
             if not icon_handle:
                 return None
                 
