@@ -543,3 +543,5 @@ file search does not work
 
 1. It did not work.
 
+1. Treat these file extensions as binary:<br>
+sdb, mui, ttf, mkv, wav, raw, etl

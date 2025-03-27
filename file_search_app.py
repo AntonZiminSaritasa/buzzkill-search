@@ -472,7 +472,7 @@ class FileSearchApp:
             search_term_lower = search_term.lower()
             
             # Create sets for fast lookups
-            skip_extensions = {'.exe', '.dll', '.pdb', '.cache', '.tmp', '.log', '.bin', '.dat', '.sys', '.msi', '.cab', '.zip', '.rar', '.7z', '.iso', '.img', '.vhd', '.vhdx'}
+            skip_extensions = {'.exe', '.dll', '.pdb', '.cache', '.tmp', '.log', '.bin', '.dat', '.sys', '.msi', '.cab', '.zip', '.rar', '.7z', '.iso', '.img', '.vhd', '.vhdx', '.sdb', '.mui', '.ttf', '.mkv', '.wav', '.raw', '.etl'}
             skip_dirs = {'System32', 'SysWOW64', 'WinSxS', 'assembly', 'Microsoft.NET', 'WindowsApps', 'Installer', 'SoftwareDistribution', 'Prefetch', 'Temp'}
             
             # Create a thread pool for parallel processing
