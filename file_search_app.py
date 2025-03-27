@@ -6,6 +6,7 @@ import threading
 import queue
 import json
 import time
+import subprocess
 
 class FileSearchApp:
     def __init__(self, root):
@@ -82,6 +83,13 @@ class FileSearchApp:
         # Bind listbox selection event
         self.result_list.bind('<<ListboxSelect>>', self.on_select_file)
         
+        # Bind right-click event
+        self.result_list.bind('<Button-3>', self.show_context_menu)
+        
+        # Create context menu
+        self.context_menu = tk.Menu(root, tearoff=0)
+        self.context_menu.add_command(label="Reveal in File Explorer", command=self.reveal_in_explorer)
+        
         # Search queue and thread
         self.search_queue = queue.Queue()
         self.search_thread = None
@@ -99,6 +107,36 @@ class FileSearchApp:
         # File selection lock
         self.file_selection_lock = threading.Lock()
         
+    def show_context_menu(self, event):
+        # Get the index of the item under the cursor
+        index = self.result_list.nearest(event.y)
+        if index >= 0:
+            self.result_list.selection_clear(0, tk.END)
+            self.result_list.selection_set(index)
+            self.context_menu.post(event.x_root, event.y_root)
+            
+    def reveal_in_explorer(self):
+        selection = self.result_list.curselection()
+        if not selection:
+            return
+            
+        file_path = self.result_list.get(selection[0])
+        if file_path.startswith("Error:"):
+            return
+            
+        try:
+            # Convert to Path object and get parent directory
+            path = Path(file_path)
+            folder_path = str(path.parent)
+            
+            # Open folder in File Explorer
+            if os.name == 'nt':  # Windows
+                subprocess.run(['explorer', folder_path])
+            else:  # Linux/Mac
+                subprocess.run(['xdg-open', folder_path])
+        except Exception as e:
+            print(f"Error opening folder: {e}")
+            
     def cancel_search(self):
         if self.search_running:
             self.search_running = False
