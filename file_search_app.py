@@ -6,6 +6,13 @@ import threading
 import queue
 import json
 import subprocess
+from win32com.shell import shell, shellcon
+import win32api
+import win32con
+import win32ui
+import win32gui
+from PIL import Image, ImageTk
+import io
 
 class LineNumberedText(tk.Text):
     def __init__(self, master, **kwargs):
@@ -64,6 +71,61 @@ class LineNumberedText(tk.Text):
         self.delete('1.0', tk.END)
         self.insert('1.0', content)
         self._update_line_numbers()
+
+class IconListbox(tk.Listbox):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        self.icons = {}  # Cache for file icons
+        
+    def insert_with_icon(self, index, file_path):
+        # Get or create icon for the file
+        icon = self._get_file_icon(file_path)
+        if icon:
+            super().insert(index, " " + os.path.basename(file_path))  # Add space for icon
+            self.icons[index] = icon
+        else:
+            super().insert(index, os.path.basename(file_path))
+            
+    def delete_all(self):
+        self.icons.clear()
+        self.delete(0, tk.END)
+        
+    def _get_file_icon(self, file_path):
+        try:
+            # Get file info
+            flags = shellcon.SHGFI_ICON | shellcon.SHGFI_SMALLICON | shellcon.SHGFI_SYSICONINDEX
+            file_info = shell.SHGetFileInfo(file_path, 0, flags)[0]
+            
+            # Get system image list
+            sys_image_list = win32gui.ImageList_GetHandle(file_info[3])
+            
+            # Extract icon from system image list
+            hdc = win32ui.CreateDCFromHandle(win32gui.GetDC(0))
+            hbmp = win32ui.CreateBitmap()
+            hbmp.CreateCompatibleBitmap(hdc, 16, 16)
+            hdc = hdc.CreateCompatibleDC()
+            hdc.SelectObject(hbmp)
+            
+            # Draw icon
+            win32gui.ImageList_Draw(sys_image_list, file_info[0], hdc.GetHandleOutput(), 0, 0, win32con.ILD_NORMAL)
+            
+            # Convert bitmap to bytes
+            bmpstr = hbmp.GetBitmapBits(True)
+            
+            # Create PIL Image
+            img = Image.frombuffer('RGBA', (16, 16), bmpstr, 'raw', 'BGRA', 0, 1)
+            
+            # Convert to PhotoImage
+            photo = ImageTk.PhotoImage(img)
+            
+            # Clean up
+            win32gui.DeleteObject(hbmp.GetHandle())
+            hdc.DeleteDC()
+            
+            return photo
+        except Exception as e:
+            print(f"Error getting icon for {file_path}: {e}")
+            return None
 
 class FileSearchApp:
     def __init__(self, root):
@@ -132,8 +194,8 @@ class FileSearchApp:
         left_frame.grid_rowconfigure(0, weight=1)
         left_frame.grid_columnconfigure(0, weight=1)
         
-        # Listbox for results
-        self.result_list = tk.Listbox(left_frame, width=70, height=30, exportselection=False)
+        # Listbox for results with icons
+        self.result_list = IconListbox(left_frame, width=70, height=30, exportselection=False)
         self.result_list.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Scrollbar for listbox
@@ -274,7 +336,7 @@ class FileSearchApp:
             self.dir_label.config(text="Search Directory: " + self.search_path)
             self.save_last_directory()
             # Clear previous results
-            self.result_list.delete(0, tk.END)
+            self.result_list.delete_all()
             self.content_text.delete('1.0', tk.END)
             self.cancel_search()  # Cancel any ongoing search
             self.result_count = 0
@@ -289,7 +351,7 @@ class FileSearchApp:
         
         # If search term is empty, clear results immediately
         if not search_term:
-            self.result_list.delete(0, tk.END)
+            self.result_list.delete_all()
             self.content_text.delete('1.0', tk.END)
             self.cancel_search()
             self.last_search_term = ""
@@ -311,7 +373,7 @@ class FileSearchApp:
         self.cancel_search()
         
         # Clear previous results
-        self.result_list.delete(0, tk.END)
+        self.result_list.delete_all()
         self.content_text.delete('1.0', tk.END)
         self.result_count = 0
         
@@ -364,7 +426,7 @@ class FileSearchApp:
             
     def add_result(self, file_path):
         if self.search_running:  # Only add if search is still running
-            self.result_list.insert(tk.END, file_path)
+            self.result_list.insert_with_icon(tk.END, file_path)
             self.result_list.see(tk.END)
         
     def on_select_file(self, event):
