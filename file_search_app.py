@@ -269,11 +269,23 @@ class FileSearchApp:
         text_scrollbar.grid(row=1, column=0, sticky=(tk.W, tk.E))
         self.content_text.configure(xscrollcommand=text_scrollbar.set)
         
-        # Configure text area
-        self.content_text.configure(font=('Courier', 10))
-        self.content_text.line_numbers.configure(font=('Courier', 10))
+        # Configure text area with proper styling
+        self.content_text.configure(
+            font=('Courier', 10),
+            background='white',
+            foreground='black',
+            insertbackground='black',
+            selectbackground='#0078D7',
+            selectforeground='white'
+        )
+        self.content_text.line_numbers.configure(
+            font=('Courier', 10),
+            background='#F0F0F0',
+            foreground='#666666'
+        )
         
         # Ensure text area is enabled and visible
+        self.content_text.configure(state='normal')
         self.content_text.frame.configure(bg='white')
         
         # Test text display
@@ -533,6 +545,9 @@ class FileSearchApp:
                     final_content = ''.join(content)
                     print(f"Content length: {len(final_content)}")
                     self.root.after(0, lambda: self.content_text.update_content(final_content))
+                    
+                    # Force update of the text area
+                    self.root.after(100, lambda: self.content_text.see('1.0'))
         except Exception as e:
             print(f"Error reading file {file_path}: {e}")
             if self.file_running:  # Only update if we haven't cancelled
