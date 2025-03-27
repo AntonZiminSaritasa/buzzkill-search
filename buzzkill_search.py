@@ -498,6 +498,14 @@ class FileSearchApp:
                         
                     # For content search, use memory mapping for better performance
                     with open(file_path, 'rb') as f:
+                        # Check if file is binary by reading first 1024 bytes
+                        header = f.read(1024)
+                        if b'\x00' in header or any(byte < 32 and byte not in (9, 10, 13) for byte in header):
+                            return None
+                            
+                        # Reset file pointer
+                        f.seek(0)
+                        
                         # Memory map the file for faster reading
                         with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as mm:
                             # Search in chunks of 1MB for better performance
@@ -518,8 +526,7 @@ class FileSearchApp:
 
             # Walk through directories and collect files
             files_to_process = []
-            search_path = Path(self.search_path).resolve()
-            for root, dirs, files in os.walk(str(search_path)):
+            for root, dirs, files in os.walk(self.search_path):
                 if not self.search_running:
                     break
                     
@@ -529,8 +536,7 @@ class FileSearchApp:
                 for file in files:
                     if not self.search_running:
                         break
-                    file_path = Path(root) / file
-                    files_to_process.append(file_path)
+                    files_to_process.append(Path(root) / file)
                     
                     # Check if we've reached the maximum number of results
                     if self.result_count >= self.max_results:

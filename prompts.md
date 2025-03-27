@@ -599,3 +599,5 @@ sdb, mui, ttf, mkv, wav, raw, etl
 
 1. It randomly stops processing with an error:<br>
 cannot mmap an empty file
+
+1. Can you skip binary files?
