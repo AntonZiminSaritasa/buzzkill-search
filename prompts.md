@@ -476,3 +476,5 @@ file search does not work
 1. Are you integrated with Python Debugger?
 
 1. Do you see local variables in debugger?
+
+1. Remove the animation. Replace it with a simple spinner in the status bar.

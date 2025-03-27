@@ -33,7 +33,6 @@ import time
 import queue
 import re
 from datetime import datetime
-from subway_surfer_animation import SubwaySurferAnimation
 
 class LineNumberedText(tk.Text):
     def __init__(self, master, **kwargs):
@@ -117,6 +116,11 @@ class FileSearchApp:
         
         # Initialize file paths dictionary
         self.file_paths = {}
+        
+        # Spinner animation
+        self.spinner_chars = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+        self.spinner_index = 0
+        self.spinner_running = False
         
         # Create main frame
         main_frame = ttk.Frame(root, padding="10")
@@ -285,10 +289,9 @@ class FileSearchApp:
                 self.search_thread.join(timeout=1.0)  # Wait up to 1 second for thread to finish
             self.search_thread = None
             self.result_count = 0
-            # Close animation if it exists
-            if hasattr(self, 'animation'):
-                self.animation.close()
-                delattr(self, 'animation')
+            # Stop spinner
+            self.spinner_running = False
+            self.status_bar.config(text="")
             
     def load_last_directory(self):
         try:
@@ -359,8 +362,9 @@ class FileSearchApp:
         # Enable cancel button
         self.cancel_button.config(state='normal')
         
-        # Start animation
-        self.animation = SubwaySurferAnimation(self.root)
+        # Start spinner
+        self.spinner_running = True
+        self.update_spinner()
         
         # Start new search
         self.search_running = True
@@ -368,6 +372,12 @@ class FileSearchApp:
         self.search_thread.daemon = True
         self.search_thread.start()
         
+    def update_spinner(self):
+        if self.spinner_running:
+            self.spinner_index = (self.spinner_index + 1) % len(self.spinner_chars)
+            self.status_bar.config(text=f"Searching... {self.spinner_chars[self.spinner_index]}")
+            self.root.after(100, self.update_spinner)  # Update every 100ms
+            
     def search_files(self, search_term):
         try:
             for root, _, files in os.walk(self.search_path):
@@ -405,10 +415,9 @@ class FileSearchApp:
             self.root.after(0, self.add_result, "Error: {}".format(str(e)))
         finally:
             self.root.after(0, self.cancel_button.config, {'state': 'disabled'})
-            # Close animation when search is complete
-            if hasattr(self, 'animation'):
-                self.root.after(0, self.animation.close)
-                self.root.after(0, lambda: delattr(self, 'animation'))
+            # Stop spinner
+            self.root.after(0, lambda: setattr(self, 'spinner_running', False))
+            self.root.after(0, lambda: self.status_bar.config(text=""))
             
     def add_result(self, file_path):
         if self.search_running:  # Only add if search is still running
