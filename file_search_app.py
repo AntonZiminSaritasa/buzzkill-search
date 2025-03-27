@@ -28,6 +28,9 @@ class LineNumberedText(tk.Text):
         super().__init__(self.frame, **kwargs)
         self.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
+        # Configure the main text widget
+        self.configure(wrap=tk.NONE)
+        
         # Bind events
         self.bind('<Key>', self._on_key)
         self.bind('<MouseWheel>', self._on_mousewheel)
@@ -74,9 +77,6 @@ class LineNumberedText(tk.Text):
         
     def update_content(self, content):
         try:
-            # Ensure text widget is enabled
-            self.configure(state='normal')
-            
             # Clear existing content
             self.delete('1.0', tk.END)
             
@@ -91,9 +91,6 @@ class LineNumberedText(tk.Text):
             
             # Force update
             self.master.update_idletasks()
-            
-            # Ensure text widget remains enabled
-            self.configure(state='normal')
         except Exception as e:
             print("Error updating content: {0}".format(e))
             
@@ -565,9 +562,6 @@ class FileSearchApp:
                 
     def update_content(self, content):
         try:
-            # Ensure text widget is enabled
-            self.content_text.configure(state='normal')
-            
             # Clear existing content
             self.content_text.delete('1.0', tk.END)
             
@@ -582,9 +576,6 @@ class FileSearchApp:
             
             # Force update
             self.root.update_idletasks()
-            
-            # Ensure text widget remains enabled
-            self.content_text.configure(state='normal')
         except Exception as e:
             print("Error updating content: {0}".format(e))
 
