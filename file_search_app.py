@@ -87,7 +87,7 @@ class IconListbox(tk.Listbox):
 class LineNumberedText(tk.Text):
     def __init__(self, master, **kwargs):
         # Create a frame to hold both widgets
-        self.frame = ttk.Frame(master)
+        self.frame = tk.Frame(master)
         
         # Create line numbers text widget
         self.line_numbers = tk.Text(self.frame, width=4, padx=3, takefocus=0, border=0,
@@ -276,12 +276,12 @@ class FileSearchApp:
         self.content_text.configure(xscrollcommand=text_scrollbar.set)
         
         # Configure text area
-        self.content_text.configure(font=('Courier', 10))
+        self.content_text.configure(font=('Courier', 10), background='white')
         self.content_text.line_numbers.configure(font=('Courier', 10))
         
         # Ensure text area is enabled and visible
-        self.content_text.configure(state='normal', background='white')
-        self.content_text.frame.configure(background='white')
+        self.content_text.configure(state='normal')
+        self.content_text.frame.configure(bg='white')
         
         # Bind listbox selection event
         self.result_list.bind('<<ListboxSelect>>', self.on_select_file)
