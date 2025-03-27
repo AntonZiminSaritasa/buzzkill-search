@@ -62,6 +62,9 @@ class LineNumberedText(tk.Text):
         # Initial line numbers
         self._update_line_numbers()
         
+        # Make text area read-only
+        self.configure(state='disabled')
+        
     def set_listbox(self, listbox):
         self.listbox = listbox
         
@@ -92,9 +95,13 @@ class LineNumberedText(tk.Text):
         self._update_line_numbers()
         
     def update_content(self, content):
+        # Enable text widget for update
+        self.configure(state='normal')
         self.delete('1.0', tk.END)
         self.insert('1.0', content)
         self._update_line_numbers()
+        # Make text widget read-only again
+        self.configure(state='disabled')
 
 class FileSearchApp:
     def __init__(self, root):
@@ -514,7 +521,7 @@ class FileSearchApp:
     def update_content(self, content):
         try:
             print(f"Updating content with length: {len(content)}")
-            # Ensure text widget is enabled
+            # Enable text widget for update
             self.content_text.configure(state='normal')
             
             # Clear existing content
@@ -532,8 +539,8 @@ class FileSearchApp:
             # Force update
             self.root.update_idletasks()
             
-            # Ensure text widget stays enabled
-            self.content_text.configure(state='normal')
+            # Make text widget read-only again
+            self.content_text.configure(state='disabled')
             
             print("Content update completed")
         except Exception as e:
