@@ -566,3 +566,5 @@ sdb, mui, ttf, mkv, wav, raw, etl
 1. Wrong. You deleted the LICENSE file but the license block still presents in the py file.
 
 1. Review the requirements.txt file.
+
+1. It uses subprocess, not pywin32.

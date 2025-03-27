@@ -1,1 +1,2 @@
-pywin32==306 
+# No external dependencies required
+# The program uses only Python standard library modules 
