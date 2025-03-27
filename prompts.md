@@ -502,3 +502,5 @@ file search does not work
 1. The search must be instant.
 
 1. I did not ask to remove the debounce. I want the search to be very quick.
+
+1. The search takes over 25 seconds in C:\Windows directory.
