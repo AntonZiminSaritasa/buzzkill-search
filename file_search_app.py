@@ -70,6 +70,9 @@ class LineNumberedText(tk.Text):
         
     def update_content(self, content):
         try:
+            # Ensure text widget is enabled
+            self.configure(state='normal')
+            
             # Clear existing content
             self.delete('1.0', tk.END)
             
@@ -439,7 +442,26 @@ class FileSearchApp:
                 self.root.after(0, self.update_content, "Error reading file: {}".format(str(e)))
                 
     def update_content(self, content):
-        self.content_text.update_content(content)
+        try:
+            # Ensure text widget is enabled
+            self.content_text.configure(state='normal')
+            
+            # Clear existing content
+            self.content_text.delete('1.0', tk.END)
+            
+            # Insert new content
+            self.content_text.insert('1.0', content)
+            
+            # Update line numbers
+            self.content_text._update_line_numbers()
+            
+            # Ensure the text area is visible
+            self.content_text.see('1.0')
+            
+            # Force update
+            self.root.update_idletasks()
+        except Exception as e:
+            print(f"Error updating content: {e}")
 
 if __name__ == "__main__":
     root = tk.Tk()
