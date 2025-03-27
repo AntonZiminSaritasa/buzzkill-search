@@ -203,6 +203,8 @@ class FileSearchApp:
         if self._last_selection:
             self.result_list.selection_set(self._last_selection[0])
             self.result_list.see(self._last_selection[0])
+            # Force focus back to listbox
+            self.result_list.focus_set()
             
     def show_context_menu(self, event):
         # Get the index of the item under the cursor
