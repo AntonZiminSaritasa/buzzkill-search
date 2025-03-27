@@ -514,7 +514,8 @@ class FileSearchApp:
 
             # Walk through directories and collect files
             files_to_process = []
-            for root, dirs, files in os.walk(self.search_path):
+            search_path = Path(self.search_path).resolve()
+            for root, dirs, files in os.walk(str(search_path)):
                 if not self.search_running:
                     break
                     
@@ -524,7 +525,8 @@ class FileSearchApp:
                 for file in files:
                     if not self.search_running:
                         break
-                    files_to_process.append(Path(root) / file)
+                    file_path = Path(root) / file
+                    files_to_process.append(file_path)
                     
                     # Check if we've reached the maximum number of results
                     if self.result_count >= self.max_results:

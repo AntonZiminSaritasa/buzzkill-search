@@ -594,3 +594,5 @@ sdb, mui, ttf, mkv, wav, raw, etl
         import tkinter as tk
     ModuleNotFoundError: No module named 'tkinter'
     ```
+
+1. Looks like the file search is not recursive on Linux.
