@@ -6,13 +6,6 @@ import threading
 import queue
 import json
 import subprocess
-from win32com.shell import shell, shellcon
-import win32api
-import win32con
-import win32ui
-import win32gui
-from PIL import Image, ImageTk
-import io
 
 class LineNumberedText(tk.Text):
     def __init__(self, master, **kwargs):
@@ -63,13 +56,13 @@ class LineNumberedText(tk.Text):
             self.line_numbers.config(state='normal')
             self.line_numbers.delete('1.0', tk.END)
             for i in range(1, lines + 1):
-                self.line_numbers.insert(tk.END, '{0}\n'.format(i))
+                self.line_numbers.insert(tk.END, f'{i}\n')
             self.line_numbers.config(state='disabled')
             
             # Sync scrollbars
             self.line_numbers.yview_moveto(self.yview()[0])
         except Exception as e:
-            print("Error updating line numbers: {0}".format(e))
+            print(f"Error updating line numbers: {e}")
         
     def configure(self, **kwargs):
         super().configure(**kwargs)
@@ -92,7 +85,7 @@ class LineNumberedText(tk.Text):
             # Force update
             self.master.update_idletasks()
         except Exception as e:
-            print("Error updating content: {0}".format(e))
+            print(f"Error updating content: {e}")
             
     def grid(self, **kwargs):
         # Override grid to place the frame instead of the text widget
@@ -101,88 +94,6 @@ class LineNumberedText(tk.Text):
     def pack(self, **kwargs):
         # Override pack to place the frame instead of the text widget
         self.frame.pack(**kwargs)
-
-class IconListbox(tk.Listbox):
-    def __init__(self, master, **kwargs):
-        super().__init__(master, **kwargs)
-        self.icons = {}  # Cache for file icons
-        self.paths = {}  # Cache for full file paths
-        
-    def insert_with_icon(self, index, file_path):
-        try:
-            # Get the actual index where the item will be inserted
-            actual_index = self.size() if index == tk.END else index
-            
-            # Store the full path first
-            self.paths[actual_index] = file_path
-            
-            # Get or create icon for the file
-            icon = self._get_file_icon(file_path)
-            if icon:
-                # Insert with icon
-                super().insert(index, " " + os.path.basename(file_path))
-                self.icons[actual_index] = icon
-                # Configure the item to show the icon
-                self.itemconfig(actual_index, image=icon)
-            else:
-                # Insert without icon
-                super().insert(index, os.path.basename(file_path))
-        except Exception as e:
-            print(f"Error inserting file {file_path}: {e}")
-            actual_index = self.size() if index == tk.END else index
-            self.paths[actual_index] = file_path
-            super().insert(index, os.path.basename(file_path))
-            
-    def delete_all(self):
-        self.icons.clear()
-        self.paths.clear()
-        self.delete(0, tk.END)
-        
-    def get_full_path(self, index):
-        return self.paths.get(index)
-        
-    def _get_file_icon(self, file_path):
-        try:
-            # Get file info with icon
-            flags = shellcon.SHGFI_ICON | shellcon.SHGFI_SMALLICON
-            file_info = shell.SHGetFileInfo(file_path, 0, flags)
-            
-            # Get icon handle
-            icon_handle = file_info[0]
-            if not icon_handle:
-                return None
-                
-            # Create DC and bitmap
-            hdc = win32ui.CreateDCFromHandle(win32gui.GetDC(0))
-            hbmp = win32ui.CreateBitmap()
-            hbmp.CreateCompatibleBitmap(hdc, 16, 16)
-            hdc = hdc.CreateCompatibleDC()
-            hdc.SelectObject(hbmp)
-            
-            # Draw icon
-            try:
-                win32gui.DrawIconEx(hdc.GetHandleOutput(), 0, 0, icon_handle, 16, 16, 0, None, win32con.DI_NORMAL)
-            except Exception:
-                return None
-            
-            # Convert bitmap to bytes
-            bmpstr = hbmp.GetBitmapBits(True)
-            
-            # Create PIL Image
-            img = Image.frombuffer('RGBA', (16, 16), bmpstr, 'raw', 'BGRA', 0, 1)
-            
-            # Convert to PhotoImage
-            photo = ImageTk.PhotoImage(img)
-            
-            # Clean up
-            win32gui.DeleteObject(hbmp.GetHandle())
-            hdc.DeleteDC()
-            win32gui.DestroyIcon(icon_handle)
-            
-            return photo
-        except Exception as e:
-            print(f"Error getting icon for {file_path}: {e}")
-            return None
 
 class FileSearchApp:
     def __init__(self, root):
@@ -251,8 +162,8 @@ class FileSearchApp:
         left_frame.grid_rowconfigure(0, weight=1)
         left_frame.grid_columnconfigure(0, weight=1)
         
-        # Listbox for results with icons
-        self.result_list = IconListbox(left_frame, width=70, height=30, exportselection=False)
+        # Listbox for results
+        self.result_list = tk.Listbox(left_frame, width=70, height=30)
         self.result_list.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Scrollbar for listbox
@@ -281,27 +192,15 @@ class FileSearchApp:
         self.content_text.configure(font=('Courier', 10))
         self.content_text.line_numbers.configure(font=('Courier', 10))
         
-        # Ensure text area is enabled and visible
-        self.content_text.configure(state='normal')
-        self.content_text.see('1.0')
-        
         # Bind listbox selection event
         self.result_list.bind('<<ListboxSelect>>', self.on_select_file)
         
         # Bind right-click event
         self.result_list.bind('<Button-3>', self.show_context_menu)
         
-        # Bind focus events to maintain listbox selection
-        self.result_list.bind('<FocusOut>', self._on_listbox_focus_out)
-        self.content_text.bind('<FocusIn>', self._on_text_focus_in)
-        self.content_text.bind('<FocusOut>', self._on_text_focus_out)
-        
         # Create context menu
         self.context_menu = tk.Menu(root, tearoff=0)
         self.context_menu.add_command(label="Reveal in File Explorer", command=self.reveal_in_explorer)
-        
-        # Store last selection
-        self._last_selection = None
         
         # Search queue and thread
         self.search_queue = queue.Queue()
@@ -323,22 +222,6 @@ class FileSearchApp:
         # Result counter
         self.result_count = 0
         
-    def _on_listbox_focus_out(self, event):
-        # Store the current selection
-        self._last_selection = self.result_list.curselection()
-        
-    def _on_text_focus_in(self, event):
-        # Restore the listbox selection if it exists
-        if self._last_selection:
-            self.result_list.selection_set(self._last_selection[0])
-            self.result_list.see(self._last_selection[0])
-            
-    def _on_text_focus_out(self, event):
-        # Restore the listbox selection if it exists
-        if self._last_selection:
-            self.result_list.selection_set(self._last_selection[0])
-            self.result_list.see(self._last_selection[0])
-            
     def show_context_menu(self, event):
         # Get the index of the item under the cursor
         index = self.result_list.nearest(event.y)
@@ -352,8 +235,7 @@ class FileSearchApp:
         if not selection:
             return
             
-        # Get the full file path from the paths cache
-        file_path = self.result_list.get_full_path(selection[0])
+        file_path = self.result_list.get(selection[0])
         if file_path.startswith("Error:"):
             return
             
@@ -367,7 +249,7 @@ class FileSearchApp:
             else:  # Linux/Mac
                 subprocess.run(['xdg-open', str(path.parent)])
         except Exception as e:
-            print("Error opening folder: {0}".format(e))
+            print(f"Error opening folder: {e}")
             
     def cancel_search(self):
         if self.search_running:
@@ -403,7 +285,7 @@ class FileSearchApp:
             self.dir_label.config(text="Search Directory: " + self.search_path)
             self.save_last_directory()
             # Clear previous results
-            self.result_list.delete_all()
+            self.result_list.delete(0, tk.END)
             self.content_text.delete('1.0', tk.END)
             self.cancel_search()  # Cancel any ongoing search
             self.result_count = 0
@@ -418,7 +300,7 @@ class FileSearchApp:
         
         # If search term is empty, clear results immediately
         if not search_term:
-            self.result_list.delete_all()
+            self.result_list.delete(0, tk.END)
             self.content_text.delete('1.0', tk.END)
             self.cancel_search()
             self.last_search_term = ""
@@ -440,7 +322,7 @@ class FileSearchApp:
         self.cancel_search()
         
         # Clear previous results
-        self.result_list.delete_all()
+        self.result_list.delete(0, tk.END)
         self.content_text.delete('1.0', tk.END)
         self.result_count = 0
         
@@ -493,14 +375,8 @@ class FileSearchApp:
             
     def add_result(self, file_path):
         if self.search_running:  # Only add if search is still running
-            try:
-                # Convert to string if it's a Path object
-                file_path_str = str(file_path)
-                print(f"Adding result: {file_path_str}")
-                self.result_list.insert_with_icon(tk.END, file_path_str)
-                self.result_list.see(tk.END)
-            except Exception as e:
-                print(f"Error adding result {file_path}: {e}")
+            self.result_list.insert(tk.END, file_path)
+            self.result_list.see(tk.END)
         
     def on_select_file(self, event):
         # Use a lock to prevent multiple simultaneous file selections
@@ -512,25 +388,14 @@ class FileSearchApp:
             if not selection:
                 return
                 
-            print(f"File selected: {selection[0]}")
-            # Store the selection
-            self._last_selection = selection
-                
-            # Get the full file path from the paths cache
-            file_path = self.result_list.get_full_path(selection[0])
-            if not file_path:
-                print("No file path found")
-                return
-                
-            print(f"Selected file path: {file_path}")
-            if isinstance(file_path, str) and file_path.startswith("Error:"):
+            file_path = self.result_list.get(selection[0])
+            if file_path.startswith("Error:"):
                 self.content_text.delete('1.0', tk.END)
                 self.content_text.insert('1.0', file_path)
                 return
                 
             # Cancel previous file reading if running
             if self.file_running:
-                print("Cancelling previous file reading")
                 self.file_running = False
                 if self.file_thread:
                     self.file_thread.join(timeout=1.0)  # Wait up to 1 second for thread to finish
@@ -545,23 +410,17 @@ class FileSearchApp:
             self.file_thread = threading.Thread(target=self.read_file_content, args=(file_path,))
             self.file_thread.daemon = True
             self.file_thread.start()
-            print("File reading thread started")
         finally:
             self.file_selection_lock.release()
         
     def read_file_content(self, file_path):
         try:
-            print(f"Starting to read file: {file_path}")
             # Check file size before reading
-            file_size = Path(file_path).stat().st_size
-            print(f"File size: {file_size} bytes")
-            
-            if file_size > self.max_file_size:
-                print("File too large, showing message")
+            if Path(file_path).stat().st_size > self.max_file_size:
                 self.root.after(0, self.update_content, "File is too large to display (>10MB)")
                 return
                 
-            with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+            with open(file_path, 'r', encoding='utf-8') as f:
                 # Read file in chunks to save memory
                 content = []
                 while True:
@@ -574,31 +433,13 @@ class FileSearchApp:
                         break
                         
                 if self.file_running:  # Only update if we haven't cancelled
-                    final_content = ''.join(content)
-                    print(f"Read {len(final_content)} characters")
-                    self.root.after(0, self.update_content, final_content)
+                    self.root.after(0, self.update_content, ''.join(content))
         except Exception as e:
-            print(f"Error reading file: {str(e)}")
             if self.file_running:  # Only update if we haven't cancelled
-                self.root.after(0, self.update_content, f"Error reading file: {str(e)}")
+                self.root.after(0, self.update_content, "Error reading file: {}".format(str(e)))
                 
     def update_content(self, content):
-        try:
-            print("Updating content...")
-            # Clear existing content
-            self.content_text.delete('1.0', tk.END)
-            
-            # Insert new content
-            self.content_text.insert('1.0', content)
-            
-            # Ensure the text area is visible
-            self.content_text.see('1.0')
-            
-            # Force update
-            self.root.update_idletasks()
-            print("Content update complete")
-        except Exception as e:
-            print(f"Error updating content: {str(e)}")
+        self.content_text.update_content(content)
 
 if __name__ == "__main__":
     root = tk.Tk()
