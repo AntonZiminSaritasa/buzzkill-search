@@ -141,14 +141,6 @@ class LineNumberedText(tk.Text):
         self.delete('1.0', tk.END)
         self.insert('1.0', content)
         self._update_line_numbers()
-        
-    def grid(self, **kwargs):
-        # Override grid to place the frame instead of the text widget
-        self.frame.grid(**kwargs)
-        
-    def pack(self, **kwargs):
-        # Override pack to place the frame instead of the text widget
-        self.frame.pack(**kwargs)
 
 class FileSearchApp:
     def __init__(self, root):
