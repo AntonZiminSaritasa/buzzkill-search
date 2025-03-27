@@ -96,6 +96,9 @@ class FileSearchApp:
         self.search_after_id = None
         self.last_search_term = ""
         
+        # File selection lock
+        self.file_selection_lock = threading.Lock()
+        
     def cancel_search(self):
         if self.search_running:
             self.search_running = False
@@ -205,32 +208,39 @@ class FileSearchApp:
             self.result_list.see(tk.END)
         
     def on_select_file(self, event):
-        selection = self.result_list.curselection()
-        if not selection:
+        # Use a lock to prevent multiple simultaneous file selections
+        if not self.file_selection_lock.acquire(blocking=False):
             return
             
-        file_path = self.result_list.get(selection[0])
-        if file_path.startswith("Error:"):
+        try:
+            selection = self.result_list.curselection()
+            if not selection:
+                return
+                
+            file_path = self.result_list.get(selection[0])
+            if file_path.startswith("Error:"):
+                self.content_text.delete('1.0', tk.END)
+                self.content_text.insert('1.0', file_path)
+                return
+                
+            # Cancel previous file reading if running
+            if self.file_running:
+                self.file_running = False
+                if self.file_thread:
+                    self.file_thread.join(timeout=1.0)  # Wait up to 1 second for thread to finish
+                self.file_thread = None
+            
+            # Clear previous content
             self.content_text.delete('1.0', tk.END)
-            self.content_text.insert('1.0', file_path)
-            return
+            self.content_text.insert('1.0', "Loading file...")
             
-        # Cancel previous file reading if running
-        if self.file_running:
-            self.file_running = False
-            if self.file_thread:
-                self.file_thread.join(timeout=1.0)  # Wait up to 1 second for thread to finish
-            self.file_thread = None
-        
-        # Clear previous content
-        self.content_text.delete('1.0', tk.END)
-        self.content_text.insert('1.0', "Loading file...")
-        
-        # Start new file reading thread
-        self.file_running = True
-        self.file_thread = threading.Thread(target=self.read_file_content, args=(file_path,))
-        self.file_thread.daemon = True
-        self.file_thread.start()
+            # Start new file reading thread
+            self.file_running = True
+            self.file_thread = threading.Thread(target=self.read_file_content, args=(file_path,))
+            self.file_thread.daemon = True
+            self.file_thread.start()
+        finally:
+            self.file_selection_lock.release()
         
     def read_file_content(self, file_path):
         try:
