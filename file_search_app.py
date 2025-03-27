@@ -30,19 +30,19 @@ class IconListbox(tk.Listbox):
             icon = self._get_file_icon(file_path)
             if icon:
                 self.icon_cache[index] = icon
-                # Insert with icon and filename
-                self.insert(tk.END, os.path.basename(file_path))
-                self.itemconfig(index, image=icon)
+                # Insert filename first, then set the icon
+                self.insert(tk.END, "  " + os.path.basename(file_path))  # Add space for icon
+                self.itemconfig(index, image=icon, compound='left')  # Show icon on the left of text
             else:
-                self.insert(tk.END, os.path.basename(file_path))
+                self.insert(tk.END, "  " + os.path.basename(file_path))
         except Exception as e:
             print(f"Error inserting file with icon: {e}")
-            self.insert(tk.END, os.path.basename(file_path))
+            self.insert(tk.END, "  " + os.path.basename(file_path))
             
     def _get_file_icon(self, file_path):
         try:
             # Get SHFILEINFO structure
-            flags = shellcon.SHGFI_ICON | shellcon.SHGFI_SMALLICON
+            flags = shellcon.SHGFI_ICON | shellcon.SHGFI_SMALLICON | shellcon.SHGFI_USEFILEATTRIBUTES
             file_info = shell.SHGetFileInfo(file_path, 0, flags)[0]
             
             if not file_info.hIcon:
@@ -63,7 +63,8 @@ class IconListbox(tk.Listbox):
             im = Image.frombuffer(
                 'RGBA',
                 (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
-                bmpstr, 'raw', 'BGRA', 0, 1)
+                bmpstr, 'raw', 'BGRA', 0, 1
+            )
             
             # Clean up
             win32gui.SelectObject(memdc, old_bitmap)
@@ -72,8 +73,9 @@ class IconListbox(tk.Listbox):
             win32gui.ReleaseDC(0, dc)
             win32gui.DestroyIcon(file_info.hIcon)
             
-            # Convert to PhotoImage
-            return ImageTk.PhotoImage(im)
+            # Convert to PhotoImage and keep reference
+            photo = ImageTk.PhotoImage(im)
+            return photo
         except Exception as e:
             print(f"Error getting icon for {file_path}: {e}")
             return None
