@@ -534,3 +534,5 @@ file search does not work
 # Chat 3
 
 1. The app takes over 1 minute to find files in a large directory. I want the search to take 1 second.
+
+1. The Change Directory button stopped working. It does not show the Select Directory popup anymore.

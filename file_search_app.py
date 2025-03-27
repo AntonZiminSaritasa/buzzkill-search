@@ -147,6 +147,7 @@ class FileSearchApp:
         # Directory picker button
         dir_button = ttk.Button(dir_frame, text="Change Directory", command=self.pick_directory)
         dir_button.grid(row=0, column=1, padx=(10, 0))
+        dir_button.configure(state='normal')  # Ensure button is enabled
         
         # Search frame
         search_frame = ttk.Frame(main_frame)
@@ -319,16 +320,19 @@ class FileSearchApp:
             pass
             
     def pick_directory(self):
-        directory = filedialog.askdirectory(initialdir=self.search_path)
-        if directory:
-            self.search_path = directory
-            self.dir_label.config(text="Search Directory: " + self.search_path)
-            self.save_last_directory()
-            # Clear previous results
-            self.result_list.delete(0, tk.END)
-            self.content_text.delete('1.0', tk.END)
-            self.cancel_search()  # Cancel any ongoing search
-            self.result_count = 0
+        try:
+            directory = filedialog.askdirectory(initialdir=self.search_path)
+            if directory:
+                self.search_path = directory
+                self.dir_label.config(text="Search Directory: " + self.search_path)
+                self.save_last_directory()
+                # Clear previous results
+                self.result_list.delete(0, tk.END)
+                self.content_text.delete('1.0', tk.END)
+                self.cancel_search()  # Cancel any ongoing search
+                self.result_count = 0
+        except Exception as e:
+            print(f"Error picking directory: {e}")
         
     def on_search_change(self, *args):
         # Cancel any pending search
