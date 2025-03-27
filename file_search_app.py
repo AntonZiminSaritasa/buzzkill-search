@@ -65,6 +65,10 @@ class FileSearchApp:
         self.root.title("File Search")
         self.root.geometry("1200x600")
         
+        # Configure root window grid weights
+        root.grid_rowconfigure(0, weight=1)
+        root.grid_columnconfigure(0, weight=1)
+        
         # Load last directory
         self.last_dir_file = "last_directory.json"
         self.search_path = self.load_last_directory()
@@ -77,9 +81,17 @@ class FileSearchApp:
         main_frame = ttk.Frame(root, padding="10")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
+        # Configure main frame grid weights
+        main_frame.grid_rowconfigure(2, weight=1)
+        main_frame.grid_columnconfigure(0, weight=1)
+        main_frame.grid_columnconfigure(1, weight=1)
+        
         # Directory selection frame
         dir_frame = ttk.Frame(main_frame)
         dir_frame.grid(row=0, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        
+        # Configure dir frame grid weights
+        dir_frame.grid_columnconfigure(0, weight=1)
         
         # Directory label
         self.dir_label = ttk.Label(dir_frame, text="Search Directory: " + self.search_path)
@@ -92,6 +104,9 @@ class FileSearchApp:
         # Search frame
         search_frame = ttk.Frame(main_frame)
         search_frame.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        
+        # Configure search frame grid weights
+        search_frame.grid_columnconfigure(0, weight=1)
         
         # Search entry
         self.search_var = tk.StringVar()
@@ -107,6 +122,10 @@ class FileSearchApp:
         left_frame = ttk.Frame(main_frame)
         left_frame.grid(row=2, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
+        # Configure left frame grid weights
+        left_frame.grid_rowconfigure(0, weight=1)
+        left_frame.grid_columnconfigure(0, weight=1)
+        
         # Listbox for results
         self.result_list = tk.Listbox(left_frame, width=70, height=30)
         self.result_list.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
@@ -120,6 +139,10 @@ class FileSearchApp:
         right_frame = ttk.Frame(main_frame)
         right_frame.grid(row=2, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(10, 0))
         
+        # Configure right frame grid weights
+        right_frame.grid_rowconfigure(0, weight=1)
+        right_frame.grid_columnconfigure(1, weight=1)
+        
         # Text area for file content with line numbers
         self.content_text = LineNumberedText(right_frame, width=70, height=30, wrap=tk.NONE)
         
@@ -127,17 +150,6 @@ class FileSearchApp:
         text_scrollbar = ttk.Scrollbar(right_frame, orient=tk.HORIZONTAL, command=self.content_text.xview)
         text_scrollbar.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E))
         self.content_text.configure(xscrollcommand=text_scrollbar.set)
-        
-        # Configure grid weights
-        main_frame.columnconfigure(0, weight=1)
-        main_frame.columnconfigure(1, weight=1)
-        main_frame.rowconfigure(2, weight=1)
-        left_frame.columnconfigure(0, weight=1)
-        left_frame.rowconfigure(0, weight=1)
-        right_frame.columnconfigure(1, weight=1)
-        right_frame.rowconfigure(0, weight=1)
-        dir_frame.columnconfigure(0, weight=1)
-        search_frame.columnconfigure(0, weight=1)
         
         # Bind listbox selection event
         self.result_list.bind('<<ListboxSelect>>', self.on_select_file)
