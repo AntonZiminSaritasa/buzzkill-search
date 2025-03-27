@@ -478,3 +478,5 @@ file search does not work
 1. Do you see local variables in debugger?
 
 1. Remove the animation. Replace it with a simple spinner in the status bar.
+
+1. The responsive design got broken when the animation was integrated. The list view and text area are anchored to the bottom. Their height does not change.

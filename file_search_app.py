@@ -127,7 +127,7 @@ class FileSearchApp:
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Configure main frame grid weights
-        main_frame.grid_rowconfigure(2, weight=1)
+        main_frame.grid_rowconfigure(3, weight=1)  # Changed from 2 to 3 to match new layout
         main_frame.grid_columnconfigure(0, weight=1)
         main_frame.grid_columnconfigure(1, weight=1)
         
