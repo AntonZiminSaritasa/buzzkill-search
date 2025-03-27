@@ -76,6 +76,7 @@ class IconListbox(tk.Listbox):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
         self.icons = {}  # Cache for file icons
+        self.paths = {}  # Cache for full file paths
         
     def insert_with_icon(self, index, file_path):
         # Get or create icon for the file
@@ -83,12 +84,18 @@ class IconListbox(tk.Listbox):
         if icon:
             super().insert(index, " " + os.path.basename(file_path))  # Add space for icon
             self.icons[index] = icon
+            self.paths[index] = file_path
         else:
             super().insert(index, os.path.basename(file_path))
+            self.paths[index] = file_path
             
     def delete_all(self):
         self.icons.clear()
+        self.paths.clear()
         self.delete(0, tk.END)
+        
+    def get_full_path(self, index):
+        return self.paths.get(index)
         
     def _get_file_icon(self, file_path):
         try:
@@ -124,7 +131,7 @@ class IconListbox(tk.Listbox):
             
             return photo
         except Exception as e:
-            print(f"Error getting icon for {file_path}: {e}")
+            print("Error getting icon for {0}: {1}".format(file_path, e))
             return None
 
 class FileSearchApp:
@@ -286,7 +293,8 @@ class FileSearchApp:
         if not selection:
             return
             
-        file_path = self.result_list.get(selection[0])
+        # Get the full file path from the paths cache
+        file_path = self.result_list.get_full_path(selection[0])
         if file_path.startswith("Error:"):
             return
             
@@ -300,7 +308,7 @@ class FileSearchApp:
             else:  # Linux/Mac
                 subprocess.run(['xdg-open', str(path.parent)])
         except Exception as e:
-            print(f"Error opening folder: {e}")
+            print("Error opening folder: {0}".format(e))
             
     def cancel_search(self):
         if self.search_running:
@@ -442,7 +450,8 @@ class FileSearchApp:
             # Store the selection
             self._last_selection = selection
                 
-            file_path = self.result_list.get(selection[0])
+            # Get the full file path from the paths cache
+            file_path = self.result_list.get_full_path(selection[0])
             if file_path.startswith("Error:"):
                 self.content_text.delete('1.0', tk.END)
                 self.content_text.insert('1.0', file_path)
