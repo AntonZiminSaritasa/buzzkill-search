@@ -405,6 +405,10 @@ class FileSearchApp:
             self.root.after(0, self.add_result, "Error: {}".format(str(e)))
         finally:
             self.root.after(0, self.cancel_button.config, {'state': 'disabled'})
+            # Close animation when search is complete
+            if hasattr(self, 'animation'):
+                self.root.after(0, self.animation.close)
+                self.root.after(0, lambda: delattr(self, 'animation'))
             
     def add_result(self, file_path):
         if self.search_running:  # Only add if search is still running
