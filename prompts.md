@@ -486,3 +486,11 @@ file search does not work
 1. Vertical scroll disappeared for the text area
 
 1. Let's store the list of 5 recently used folders. The Change Directory component will allow to select a folder from a list or to browse.
+
+1.
+    ```
+    Traceback (most recent call last):
+    File "D:\Work\Cursor\cursor-test\file_search_app.py", line 36, in <module>
+        from subway_surfer_animation import SubwaySurferAnimation
+    ModuleNotFoundError: No module named 'subway_surfer_animation'
+    ```
