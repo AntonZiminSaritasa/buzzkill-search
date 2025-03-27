@@ -14,111 +14,6 @@ import io
 import win32com.shell.shell as shell
 import win32com.shell.shellcon as shellcon
 
-class IconListbox(tk.Listbox):
-    def __init__(self, master, **kwargs):
-        kwargs['selectmode'] = tk.SINGLE  # Force single selection mode
-        super().__init__(master, **kwargs)
-        self.icon_cache = {}
-        self.file_paths = {}
-        
-        # Configure appearance
-        self.configure(
-            activestyle='none',  # No underline on selection
-            selectbackground='#0078D7',  # Windows blue selection color
-            selectforeground='white'
-        )
-        
-    def insert_with_icon(self, file_path):
-        try:
-            # Store the full path
-            index = self.size()
-            self.file_paths[index] = file_path
-            
-            # Get file icon
-            icon = self._get_file_icon(file_path)
-            if icon:
-                self.icon_cache[index] = icon
-                # Insert filename first, then set the icon
-                self.insert(tk.END, "  " + os.path.basename(file_path))  # Add space for icon
-                self.itemconfig(index, image=icon, compound='left')  # Show icon on the left of text
-            else:
-                self.insert(tk.END, "  " + os.path.basename(file_path))
-        except Exception as e:
-            print(f"Error inserting file with icon: {e}")
-            self.insert(tk.END, "  " + os.path.basename(file_path))
-            
-    def _get_file_icon(self, file_path):
-        try:
-            # Get file extension
-            ext = os.path.splitext(file_path)[1].lower()
-            if not ext:
-                ext = '.' + os.path.basename(file_path)  # For files without extension
-            
-            # Try to get icon from extension
-            try:
-                # Get icon from file type
-                large, small = win32gui.ExtractIconEx(file_path, 0)
-                if small:
-                    icon_handle = small[0]
-                    if large:
-                        for i in large:
-                            win32gui.DestroyIcon(i)
-                    for i in small[1:]:
-                        win32gui.DestroyIcon(i)
-                elif large:
-                    icon_handle = large[0]
-                    for i in large[1:]:
-                        win32gui.DestroyIcon(i)
-                else:
-                    return None
-            except Exception:
-                # Fallback to default icon
-                return None
-            
-            if not icon_handle:
-                return None
-                
-            try:
-                # Create DC and bitmap
-                dc = win32gui.GetDC(0)
-                memdc = win32gui.CreateCompatibleDC(dc)
-                bitmap = win32gui.CreateCompatibleBitmap(dc, 16, 16)
-                old_bitmap = win32gui.SelectObject(memdc, bitmap)
-                
-                # Draw icon
-                win32gui.DrawIconEx(memdc, 0, 0, icon_handle, 16, 16, 0, None, win32con.DI_NORMAL)
-                
-                # Convert to PIL Image
-                bmpinfo = win32gui.GetBitmapInfo(bitmap)
-                bmpstr = win32gui.GetBitmapBits(bitmap, True)
-                im = Image.frombuffer(
-                    'RGBA',
-                    (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
-                    bmpstr, 'raw', 'BGRA', 0, 1
-                )
-                
-                # Clean up
-                win32gui.SelectObject(memdc, old_bitmap)
-                win32gui.DeleteObject(bitmap)
-                win32gui.DeleteDC(memdc)
-                win32gui.ReleaseDC(0, dc)
-                win32gui.DestroyIcon(icon_handle)
-                
-                # Convert to PhotoImage and keep reference
-                photo = ImageTk.PhotoImage(im)
-                return photo
-            except Exception as e:
-                if icon_handle:
-                    win32gui.DestroyIcon(icon_handle)
-                raise e
-        except Exception as e:
-            print(f"Error getting icon for {file_path}: {e}")
-            return None
-            
-    def get(self, index):
-        # Return the full path instead of just the filename
-        return self.file_paths.get(index, super().get(index))
-
 class LineNumberedText(tk.Text):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
@@ -248,8 +143,8 @@ class FileSearchApp:
         left_frame.grid_rowconfigure(0, weight=1)
         left_frame.grid_columnconfigure(0, weight=1)
         
-        # Listbox for results with icons
-        self.result_list = IconListbox(left_frame, width=70, height=30, exportselection=False, selectmode=tk.SINGLE)
+        # Listbox for results
+        self.result_list = tk.Listbox(left_frame, width=70, height=30, exportselection=False)
         self.result_list.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Scrollbar for listbox
@@ -477,12 +372,10 @@ class FileSearchApp:
     def add_result(self, file_path):
         if self.search_running:  # Only add if search is still running
             try:
-                self.result_list.insert_with_icon(file_path)
+                self.result_list.insert(tk.END, os.path.basename(file_path))
                 self.result_list.see(tk.END)
             except Exception as e:
                 print(f"Error adding result: {e}")
-                # If icon insertion fails, try regular insert
-                self.result_list.insert(tk.END, "  " + os.path.basename(file_path))
         
     def on_select_file(self, event):
         # Use a lock to prevent multiple simultaneous file selections
