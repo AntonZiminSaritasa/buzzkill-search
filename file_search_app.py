@@ -96,6 +96,10 @@ class LineNumberedText(tk.Text):
         # Configure the main text widget
         self.grid(row=0, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
         
+        # Configure grid weights for proper resizing
+        master.grid_columnconfigure(1, weight=1)
+        master.grid_rowconfigure(0, weight=1)
+        
         # Bind events
         self.bind('<Key>', self._on_key)
         self.bind('<MouseWheel>', self._on_mousewheel)
@@ -224,15 +228,14 @@ class FileSearchApp:
         
         # Configure right frame grid weights
         right_frame.grid_rowconfigure(0, weight=1)
-        right_frame.grid_columnconfigure(0, weight=1)
+        right_frame.grid_columnconfigure(1, weight=1)  # Changed from 0 to 1 to match LineNumberedText layout
         
         # Text area for file content with line numbers
         self.content_text = LineNumberedText(right_frame, width=70, height=30, wrap=tk.NONE)
-        self.content_text.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Add horizontal scrollbar for text area
         text_scrollbar = ttk.Scrollbar(right_frame, orient=tk.HORIZONTAL, command=self.content_text.xview)
-        text_scrollbar.grid(row=1, column=0, sticky=(tk.W, tk.E))
+        text_scrollbar.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E))  # Added columnspan=2 to span both columns
         self.content_text.configure(xscrollcommand=text_scrollbar.set)
         
         # Configure text area with proper styling
@@ -249,9 +252,6 @@ class FileSearchApp:
             background='#F0F0F0',
             foreground='#666666'
         )
-        
-        # Ensure text area is enabled and visible
-        self.content_text.configure(state='normal')
         
         # Test text display
         self.content_text.delete('1.0', tk.END)
@@ -287,14 +287,6 @@ class FileSearchApp:
         
         # Result counter
         self.result_count = 0
-        
-        # Bind focus events to maintain listbox selection
-        self.result_list.bind('<FocusOut>', self._on_listbox_focus_out)
-        self.content_text.bind('<FocusIn>', self._on_text_focus_in)
-        self.content_text.bind('<FocusOut>', self._on_text_focus_out)
-        
-        # Store last selection
-        self._last_selection = None
         
     def show_context_menu(self, event):
         # Get the index of the item under the cursor
@@ -518,29 +510,38 @@ class FileSearchApp:
                     final_content = ''.join(content)
                     print(f"Content length: {len(final_content)}")
                     self.root.after(0, lambda: self.content_text.update_content(final_content))
-                    
-                    # Force update of the text area
-                    self.root.after(100, lambda: self.content_text.see('1.0'))
         except Exception as e:
             print(f"Error reading file {file_path}: {e}")
             if self.file_running:  # Only update if we haven't cancelled
                 self.root.after(0, lambda: self.content_text.update_content("Error reading file: {}".format(str(e))))
-
-    def _on_listbox_focus_out(self, event):
-        # Store the current selection
-        self._last_selection = self.result_list.curselection()
-        
-    def _on_text_focus_in(self, event):
-        # Restore the listbox selection if it exists
-        if self._last_selection:
-            self.result_list.selection_set(self._last_selection[0])
-            self.result_list.see(self._last_selection[0])
+                
+    def update_content(self, content):
+        try:
+            print(f"Updating content with length: {len(content)}")
+            # Ensure text widget is enabled
+            self.content_text.configure(state='normal')
             
-    def _on_text_focus_out(self, event):
-        # Restore the listbox selection if it exists
-        if self._last_selection:
-            self.result_list.selection_set(self._last_selection[0])
-            self.result_list.see(self._last_selection[0])
+            # Clear existing content
+            self.content_text.delete('1.0', tk.END)
+            
+            # Insert new content
+            self.content_text.insert('1.0', content)
+            
+            # Update line numbers
+            self.content_text._update_line_numbers()
+            
+            # Ensure the text area is visible
+            self.content_text.see('1.0')
+            
+            # Force update
+            self.root.update_idletasks()
+            
+            # Ensure text widget stays enabled
+            self.content_text.configure(state='normal')
+            
+            print("Content update completed")
+        except Exception as e:
+            print(f"Error updating content: {e}")
 
 if __name__ == "__main__":
     root = tk.Tk()
