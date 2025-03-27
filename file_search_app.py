@@ -623,23 +623,35 @@ class FileSearchApp:
                 self.root.after(0, lambda: self.content_text.update_content("File is too large to display (>10MB)"))
                 return
                 
-            with open(file_path, 'r', encoding='utf-8') as f:
-                # Read file in chunks to save memory
-                content = []
-                while True:
-                    chunk = f.read(8192)  # Read 8KB at a time
-                    if not chunk:
-                        break
-                    content.append(chunk)
-                    if len(''.join(content)) > self.max_file_size:
-                        content = [''.join(content)[:self.max_file_size] + "\n... (file truncated)"]
-                        break
+            # Try different encodings in order of preference
+            encodings = ['utf-8', 'cp1252', 'latin1', 'iso-8859-1']
+            content = None
+            
+            for encoding in encodings:
+                try:
+                    with open(file_path, 'r', encoding=encoding) as f:
+                        # Read file in chunks to save memory
+                        content = []
+                        while True:
+                            chunk = f.read(8192)  # Read 8KB at a time
+                            if not chunk:
+                                break
+                            content.append(chunk)
+                            if len(''.join(content)) > self.max_file_size:
+                                content = [''.join(content)[:self.max_file_size] + "\n... (file truncated)"]
+                                break
+                    break  # If we get here, the encoding worked
+                except UnicodeDecodeError:
+                    continue  # Try next encoding
+                    
+            if content is None:
+                raise UnicodeDecodeError(f"Could not decode file with any of the encodings: {encodings}")
                         
-                if self.file_running:  # Only update if we haven't cancelled
-                    print(f"Updating content for {file_path}")
-                    final_content = ''.join(content)
-                    print(f"Content length: {len(final_content)}")
-                    self.root.after(0, lambda: self.content_text.update_content(final_content))
+            if self.file_running:  # Only update if we haven't cancelled
+                print(f"Updating content for {file_path}")
+                final_content = ''.join(content)
+                print(f"Content length: {len(final_content)}")
+                self.root.after(0, lambda: self.content_text.update_content(final_content))
         except Exception as e:
             error_msg = str(e)
             print(f"Error reading file {file_path}: {error_msg}")

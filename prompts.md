@@ -545,3 +545,8 @@ file search does not work
 
 1. Treat these file extensions as binary:<br>
 sdb, mui, ttf, mkv, wav, raw, etl
+
+1. It can't display a file with a corrupted UTF-8 symbol:
+    ```
+    Error reading file C:\Windows\diagnostics\system\Device\CL_Utility.ps1: 'utf-8' codec can't decode byte 0xa9 in position 12: invalid start byte
+    ```
