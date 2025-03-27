@@ -453,10 +453,10 @@ class FileSearchApp:
                     print(f"Content length: {len(final_content)}")
                     self.root.after(0, lambda: self.content_text.update_content(final_content))
         except Exception as e:
-            error_msg = str(e)
-            print(f"Error reading file {file_path}: {error_msg}")
+            error_msg = f"Error reading file {file_path}: {str(e)}"
+            print(error_msg)
             if self.file_running:  # Only update if we haven't cancelled
-                self.root.after(0, lambda msg=error_msg: self.content_text.update_content(f"Error reading file: {msg}"))
+                self.root.after(0, lambda msg=error_msg: self.content_text.update_content(msg))
                 
     def update_content(self, content):
         try:
