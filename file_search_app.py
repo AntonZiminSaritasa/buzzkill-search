@@ -262,8 +262,8 @@ class FileSearchApp:
         right_frame.grid_rowconfigure(0, weight=1)
         right_frame.grid_columnconfigure(0, weight=1)
         
-        # Text area for file content with line numbers
-        self.content_text = LineNumberedText(right_frame, width=70, height=30, wrap=tk.NONE)
+        # Text area for file content
+        self.content_text = scrolledtext.ScrolledText(right_frame, width=70, height=30, wrap=tk.NONE)
         self.content_text.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Add horizontal scrollbar for text area
@@ -272,8 +272,7 @@ class FileSearchApp:
         self.content_text.configure(xscrollcommand=text_scrollbar.set)
         
         # Configure text area
-        self.content_text.configure(font=('Courier', 10), state='normal')
-        self.content_text.line_numbers.configure(font=('Courier', 10))
+        self.content_text.configure(font=('Courier', 10))
         
         # Ensure text area is enabled and visible
         self.content_text.configure(state='normal')
