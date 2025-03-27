@@ -504,3 +504,11 @@ file search does not work
 1. I did not ask to remove the debounce. I want the search to be very quick.
 
 1. The search takes over 25 seconds in C:\Windows directory.
+
+1.
+    ```
+    Traceback (most recent call last):
+    File "D:\Work\Cursor\cursor-test\file_search_app.py", line 36, in <module>
+        from subway_surfer_animation import SubwaySurferAnimation
+    ModuleNotFoundError: No module named 'subway_surfer_animation'
+    ```
