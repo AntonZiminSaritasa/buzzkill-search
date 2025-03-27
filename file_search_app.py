@@ -267,7 +267,7 @@ class FileSearchApp:
                         return data['last_directory']
         except Exception:
             pass
-        return "D:/Work/Cursor/cursor-test"
+        return str(Path.home() / "Documents")
         
     def save_last_directory(self):
         try:
