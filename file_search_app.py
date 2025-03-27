@@ -513,7 +513,7 @@ class FileSearchApp:
             # Check file size before reading
             if Path(file_path).stat().st_size > self.max_file_size:
                 print("File too large")
-                self.root.after(0, self.update_content, "File is too large to display (>10MB)")
+                self.root.after(0, lambda: self.content_text.update_content("File is too large to display (>10MB)"))
                 return
                 
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -532,11 +532,11 @@ class FileSearchApp:
                     print(f"Updating content for {file_path}")
                     final_content = ''.join(content)
                     print(f"Content length: {len(final_content)}")
-                    self.root.after(0, self.update_content, final_content)
+                    self.root.after(0, lambda: self.content_text.update_content(final_content))
         except Exception as e:
             print(f"Error reading file {file_path}: {e}")
             if self.file_running:  # Only update if we haven't cancelled
-                self.root.after(0, self.update_content, "Error reading file: {}".format(str(e)))
+                self.root.after(0, lambda: self.content_text.update_content("Error reading file: {}".format(str(e))))
                 
     def update_content(self, content):
         try:
