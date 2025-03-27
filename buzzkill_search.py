@@ -129,7 +129,7 @@ class FileSearchApp:
         root.grid_columnconfigure(0, weight=1)
         
         # Load last directory and recent directories
-        self.last_dir_file = os.path.join(os.path.expanduser("~"), ".file_search_app", "last_directory.json")
+        self.last_dir_file = os.path.join(os.path.expanduser("~"), ".buzzkill_search", "last_directory.json")
         self.search_path = self.load_last_directory()
         self.recent_dirs = self.load_recent_directories()
         
