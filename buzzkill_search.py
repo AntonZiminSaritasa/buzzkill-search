@@ -484,6 +484,10 @@ class FileSearchApp:
                     if file_path.stat().st_size > self.max_file_size:
                         return None
                         
+                    # Skip empty files
+                    if file_path.stat().st_size == 0:
+                        return None
+                        
                     # Apply file name filter if specified
                     if filter_pattern and not filter_regex.match(file_path.name):
                         return None

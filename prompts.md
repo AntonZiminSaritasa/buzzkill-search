@@ -596,3 +596,6 @@ sdb, mui, ttf, mkv, wav, raw, etl
     ```
 
 1. Looks like the file search is not recursive on Linux.
+
+1. It randomly stops processing with an error:<br>
+cannot mmap an empty file
