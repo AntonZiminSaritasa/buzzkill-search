@@ -104,8 +104,8 @@ class IconListbox(tk.Listbox):
         
     def _get_file_icon(self, file_path):
         try:
-            # Get file info
-            flags = shellcon.SHGFI_ICON | shellcon.SHGFI_SMALLICON
+            # Get file info with icon
+            flags = shellcon.SHGFI_ICON | shellcon.SHGFI_SMALLICON | shellcon.SHGFI_USEFILEATTRIBUTES
             file_info = shell.SHGetFileInfo(file_path, 0, flags)
             
             # Get icon handle
@@ -121,7 +121,11 @@ class IconListbox(tk.Listbox):
             hdc.SelectObject(hbmp)
             
             # Draw icon
-            win32gui.DrawIconEx(hdc.GetHandleOutput(), 0, 0, icon_handle, 16, 16, 0, None, win32con.DI_NORMAL)
+            try:
+                win32gui.DrawIconEx(hdc.GetHandleOutput(), 0, 0, icon_handle, 16, 16, 0, None, win32con.DI_NORMAL)
+            except Exception:
+                # If DrawIconEx fails, try using a default icon
+                return None
             
             # Convert bitmap to bytes
             bmpstr = hbmp.GetBitmapBits(True)
