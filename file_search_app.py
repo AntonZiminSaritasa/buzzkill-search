@@ -86,20 +86,15 @@ class IconListbox(tk.Listbox):
 
 class LineNumberedText(tk.Text):
     def __init__(self, master, **kwargs):
-        # Create a frame to hold both widgets
-        self.frame = tk.Frame(master)
+        super().__init__(master, **kwargs)
         
         # Create line numbers text widget
-        self.line_numbers = tk.Text(self.frame, width=4, padx=3, takefocus=0, border=0,
+        self.line_numbers = tk.Text(master, width=4, padx=3, takefocus=0, border=0,
                                   background='lightgray', state='disabled', wrap=tk.NONE)
-        self.line_numbers.pack(side=tk.LEFT, fill=tk.Y)
-        
-        # Create the main text widget
-        super().__init__(self.frame, **kwargs)
-        self.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.line_numbers.grid(row=0, column=0, sticky=(tk.N, tk.S))
         
         # Configure the main text widget
-        self.configure(wrap=tk.NONE, background='white')
+        self.grid(row=0, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
         
         # Bind events
         self.bind('<Key>', self._on_key)
@@ -125,49 +120,28 @@ class LineNumberedText(tk.Text):
         return None
         
     def _update_line_numbers(self):
-        try:
-            # Get the number of lines
-            lines = self.get('1.0', tk.END).count('\n')
-            
-            # Update line numbers
-            self.line_numbers.config(state='normal')
-            self.line_numbers.delete('1.0', tk.END)
-            for i in range(1, lines + 1):
-                self.line_numbers.insert(tk.END, f'{i}\n')
-            self.line_numbers.config(state='disabled')
-            
-            # Sync scrollbars
-            self.line_numbers.yview_moveto(self.yview()[0])
-        except Exception as e:
-            print(f"Error updating line numbers: {e}")
+        # Get the number of lines
+        lines = self.get('1.0', tk.END).count('\n')
+        
+        # Update line numbers
+        self.line_numbers.config(state='normal')
+        self.line_numbers.delete('1.0', tk.END)
+        for i in range(1, lines + 1):
+            self.line_numbers.insert(tk.END, f'{i}\n')
+        self.line_numbers.config(state='disabled')
+        
+        # Sync scrollbars
+        self.line_numbers.yview_moveto(self.yview()[0])
         
     def configure(self, **kwargs):
         super().configure(**kwargs)
         self._update_line_numbers()
         
     def update_content(self, content):
-        try:
-            print(f"LineNumberedText updating content with length: {len(content)}")
-            
-            # Clear existing content
-            self.delete('1.0', tk.END)
-            
-            # Insert new content
-            self.insert('1.0', content)
-            
-            # Update line numbers
-            self._update_line_numbers()
-            
-            # Ensure the text area is visible
-            self.see('1.0')
-            
-            # Force update
-            self.master.update_idletasks()
-            
-            print("LineNumberedText content update completed")
-        except Exception as e:
-            print(f"Error updating LineNumberedText content: {e}")
-            
+        self.delete('1.0', tk.END)
+        self.insert('1.0', content)
+        self._update_line_numbers()
+        
     def grid(self, **kwargs):
         # Override grid to place the frame instead of the text widget
         self.frame.grid(**kwargs)
@@ -322,6 +296,14 @@ class FileSearchApp:
         
         # Result counter
         self.result_count = 0
+        
+        # Bind focus events to maintain listbox selection
+        self.result_list.bind('<FocusOut>', self._on_listbox_focus_out)
+        self.content_text.bind('<FocusIn>', self._on_text_focus_in)
+        self.content_text.bind('<FocusOut>', self._on_text_focus_out)
+        
+        # Store last selection
+        self._last_selection = None
         
     def show_context_menu(self, event):
         # Get the index of the item under the cursor
@@ -552,6 +534,22 @@ class FileSearchApp:
             print(f"Error reading file {file_path}: {e}")
             if self.file_running:  # Only update if we haven't cancelled
                 self.root.after(0, lambda: self.content_text.update_content("Error reading file: {}".format(str(e))))
+
+    def _on_listbox_focus_out(self, event):
+        # Store the current selection
+        self._last_selection = self.result_list.curselection()
+        
+    def _on_text_focus_in(self, event):
+        # Restore the listbox selection if it exists
+        if self._last_selection:
+            self.result_list.selection_set(self._last_selection[0])
+            self.result_list.see(self._last_selection[0])
+            
+    def _on_text_focus_out(self, event):
+        # Restore the listbox selection if it exists
+        if self._last_selection:
+            self.result_list.selection_set(self._last_selection[0])
+            self.result_list.see(self._last_selection[0])
 
 if __name__ == "__main__":
     root = tk.Tk()
