@@ -30,8 +30,14 @@ class LineNumberedText(tk.Text):
         self.bind('<Button-2>', self._on_click)
         self.bind('<Button-3>', self._on_click)
         
+        # Store reference to listbox
+        self.listbox = None
+        
         # Initial line numbers
         self._update_line_numbers()
+        
+    def set_listbox(self, listbox):
+        self.listbox = listbox
         
     def _on_click(self, event):
         # Don't take focus when clicking
@@ -154,6 +160,7 @@ class FileSearchApp:
         
         # Text area for file content with line numbers
         self.content_text = LineNumberedText(right_frame, width=70, height=30, wrap=tk.NONE)
+        self.content_text.set_listbox(self.result_list)  # Set reference to listbox
         
         # Add horizontal scrollbar for text area
         text_scrollbar = ttk.Scrollbar(right_frame, orient=tk.HORIZONTAL, command=self.content_text.xview)
