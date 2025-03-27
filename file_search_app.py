@@ -23,20 +23,16 @@ SOFTWARE.
 """
 
 import tkinter as tk
-from tkinter import ttk, scrolledtext, filedialog
+from tkinter import ttk, filedialog
 import os
-from pathlib import Path
-import threading
-import queue
 import json
+import threading
+from pathlib import Path
 import subprocess
-import win32gui
-import win32con
-import win32api
-from PIL import Image, ImageTk
-import io
-import win32com.shell.shell as shell
-import win32com.shell.shellcon as shellcon
+import time
+import queue
+import re
+from datetime import datetime
 
 class LineNumberedText(tk.Text):
     def __init__(self, master, **kwargs):
