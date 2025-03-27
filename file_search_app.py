@@ -147,6 +147,7 @@ class LineNumberedText(tk.Text):
         
     def update_content(self, content):
         try:
+            print(f"Updating content with length: {len(content)}")
             # Ensure text widget is enabled
             self.configure(state='normal')
             
@@ -167,6 +168,8 @@ class LineNumberedText(tk.Text):
             
             # Ensure text widget stays enabled
             self.configure(state='normal')
+            
+            print("Content update completed")
         except Exception as e:
             print(f"Error updating content: {e}")
             
@@ -527,7 +530,9 @@ class FileSearchApp:
                         
                 if self.file_running:  # Only update if we haven't cancelled
                     print(f"Updating content for {file_path}")
-                    self.root.after(0, self.update_content, ''.join(content))
+                    final_content = ''.join(content)
+                    print(f"Content length: {len(final_content)}")
+                    self.root.after(0, self.update_content, final_content)
         except Exception as e:
             print(f"Error reading file {file_path}: {e}")
             if self.file_running:  # Only update if we haven't cancelled
@@ -535,6 +540,7 @@ class FileSearchApp:
                 
     def update_content(self, content):
         try:
+            print(f"Updating content with length: {len(content)}")
             # Ensure text widget is enabled
             self.content_text.configure(state='normal')
             
@@ -555,6 +561,8 @@ class FileSearchApp:
             
             # Ensure text widget stays enabled
             self.content_text.configure(state='normal')
+            
+            print("Content update completed")
         except Exception as e:
             print(f"Error updating content: {e}")
 
