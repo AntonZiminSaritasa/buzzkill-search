@@ -2,11 +2,14 @@
 
 **Disclaimer**: All code in this project is written by Cursor AI. The project is licensed under the MIT License.
 
-Note: Two files in this project were created by a human:
+Note: Three files in this project were created by a human:
 - `.gitignore`
 - `prompts.md`
+- `2025-03-27_145518.png`
 
 A fast file search utility for Windows that allows you to search through files by content and name.
+
+![Buzzkill Search Screenshot](2025-03-27_145518.png)
 
 ## Features
 

@@ -1,6 +1,7 @@
 # Manually Edited Files
 
 - .gitignore
+- 2025-03-27_145518.png
 - prompts.md
 
 # Chat 1
@@ -582,3 +583,5 @@ sdb, mui, ttf, mkv, wav, raw, etl
 1. Add a note to the top disclaimer section in README.md that 2 files were created by human:<br>
 .gitignore<br>
 .prompts.md
+
+1. I added 2025-03-27_145518.png file. Insert it as an image to README.md. Include it to the list of files created by human.
