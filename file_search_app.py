@@ -99,7 +99,7 @@ class LineNumberedText(tk.Text):
         self.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
         # Configure the main text widget
-        self.configure(wrap=tk.NONE, background='white')
+        self.configure(wrap=tk.NONE, background='white', state='normal')
         
         # Bind events
         self.bind('<Key>', self._on_key)
@@ -149,6 +149,9 @@ class LineNumberedText(tk.Text):
         try:
             print(f"LineNumberedText updating content with length: {len(content)}")
             
+            # Ensure text widget is enabled
+            self.configure(state='normal')
+            
             # Clear existing content
             self.delete('1.0', tk.END)
             
@@ -163,6 +166,9 @@ class LineNumberedText(tk.Text):
             
             # Force update
             self.master.update_idletasks()
+            
+            # Ensure text widget stays enabled
+            self.configure(state='normal')
             
             print("LineNumberedText content update completed")
         except Exception as e:
@@ -544,6 +550,9 @@ class FileSearchApp:
                     print(f"Updating content for {file_path}")
                     final_content = ''.join(content)
                     print(f"Content length: {len(final_content)}")
+                    
+                    # Ensure text widget is enabled before updating
+                    self.root.after(0, lambda: self.content_text.configure(state='normal'))
                     self.root.after(0, lambda: self.content_text.update_content(final_content))
                     
                     # Force update of the text area
@@ -551,6 +560,7 @@ class FileSearchApp:
         except Exception as e:
             print(f"Error reading file {file_path}: {e}")
             if self.file_running:  # Only update if we haven't cancelled
+                self.root.after(0, lambda: self.content_text.configure(state='normal'))
                 self.root.after(0, lambda: self.content_text.update_content("Error reading file: {}".format(str(e))))
                 
     def update_content(self, content):
