@@ -24,12 +24,30 @@ A fast file search utility for Windows that allows you to search through files b
 ## Requirements
 
 - Python 3.x
-- Windows OS
+- tkinter (Python's standard GUI library)
+- Windows OS or Linux with X11
 
 ## Installation
 
 1. Clone the repository
-2. No additional dependencies required - the program uses only Python standard library modules
+
+2. Install Python and tkinter:
+   - Windows: Python installer includes tkinter
+   - Ubuntu/Debian:
+     ```
+     sudo apt-get update
+     sudo apt-get install python3-tk
+     ```
+   - Fedora:
+     ```
+     sudo dnf install python3-tkinter
+     ```
+   - Arch Linux:
+     ```
+     sudo pacman -S tk
+     ```
+
+3. No additional dependencies required - the program uses only Python standard library modules
 
 ## Usage
 

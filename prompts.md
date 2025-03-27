@@ -585,3 +585,12 @@ sdb, mui, ttf, mkv, wav, raw, etl
 .prompts.md
 
 1. I added 2025-03-27_145518.png file. Insert it as an image to README.md. Include it to the list of files created by human.
+
+1. It does not work on Ubuntu:
+    ```
+    anton@anton-ThinkPad-S5-Yoga-15:~/Work/Cursor/cursor-test-master$ python3 buzzkill_search.py 
+    Traceback (most recent call last):
+    File "/home/anton/Work/Cursor/cursor-test-master/buzzkill_search.py", line 7, in <module>
+        import tkinter as tk
+    ModuleNotFoundError: No module named 'tkinter'
+    ```
