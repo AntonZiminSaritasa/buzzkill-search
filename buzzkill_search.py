@@ -484,10 +484,6 @@ class FileSearchApp:
                     if file_path.stat().st_size > self.max_file_size:
                         return None
                         
-                    # Skip empty files
-                    if file_path.stat().st_size == 0:
-                        return None
-                        
                     # Apply file name filter if specified
                     if filter_pattern and not filter_regex.match(file_path.name):
                         return None
@@ -498,14 +494,6 @@ class FileSearchApp:
                         
                     # For content search, use memory mapping for better performance
                     with open(file_path, 'rb') as f:
-                        # Check if file is binary by reading first 1024 bytes
-                        header = f.read(1024)
-                        if b'\x00' in header or any(byte < 32 and byte not in (9, 10, 13) for byte in header):
-                            return None
-                            
-                        # Reset file pointer
-                        f.seek(0)
-                        
                         # Memory map the file for faster reading
                         with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as mm:
                             # Search in chunks of 1MB for better performance
