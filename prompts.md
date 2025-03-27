@@ -512,3 +512,19 @@ file search does not work
         from subway_surfer_animation import SubwaySurferAnimation
     ModuleNotFoundError: No module named 'subway_surfer_animation'
     ```
+
+1.
+    ```
+    Exception in Tkinter callback
+    Traceback (most recent call last):
+    File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.752.0_x64__qbz5n2kfra8p0\Lib\tkinter\__init__.py", line 2068, in __call__
+        return self.func(*args)
+            ~~~~~~~~~^^^^^^^
+    File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.752.0_x64__qbz5n2kfra8p0\Lib\tkinter\__init__.py", line 862, in callit
+        func(*args)
+        ~~~~^^^^^^^
+    File "D:\Work\Cursor\cursor-test\file_search_app.py", line 362, in perform_search
+        self.update_spinner()
+        ^^^^^^^^^^^^^^^^^^^
+    AttributeError: 'FileSearchApp' object has no attribute 'update_spinner'
+    ```

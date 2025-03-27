@@ -117,6 +117,11 @@ class FileSearchApp:
         # Initialize file paths dictionary
         self.file_paths = {}
         
+        # Spinner
+        self.spinner_running = False
+        self.spinner_index = 0
+        self.spinner_chars = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+        
         # Create main frame
         main_frame = ttk.Frame(root, padding="10")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
@@ -548,6 +553,12 @@ class FileSearchApp:
             print("Content update completed")
         except Exception as e:
             print(f"Error updating content: {e}")
+
+    def update_spinner(self):
+        if self.spinner_running:
+            self.spinner_index = (self.spinner_index + 1) % len(self.spinner_chars)
+            self.status_bar.config(text=f"Searching... {self.spinner_chars[self.spinner_index]}")
+            self.root.after(100, self.update_spinner)
 
 if __name__ == "__main__":
     root = tk.Tk()
