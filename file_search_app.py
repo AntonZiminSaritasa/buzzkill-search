@@ -33,6 +33,8 @@ import time
 import queue
 import re
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import mmap
 
 class LineNumberedText(tk.Text):
     def __init__(self, master, **kwargs):
@@ -386,6 +388,43 @@ class FileSearchApp:
             skip_extensions = {'.exe', '.dll', '.pdb', '.cache', '.tmp', '.log', '.bin', '.dat', '.sys', '.msi', '.cab', '.zip', '.rar', '.7z', '.iso', '.img', '.vhd', '.vhdx'}
             skip_dirs = {'System32', 'SysWOW64', 'WinSxS', 'assembly', 'Microsoft.NET', 'WindowsApps', 'Installer', 'SoftwareDistribution', 'Prefetch', 'Temp'}
             
+            # Create a thread pool for parallel processing
+            def process_file(file_path):
+                try:
+                    # Skip binary and system files early
+                    if file_path.suffix.lower() in skip_extensions:
+                        return None
+                        
+                    # Check file size before reading
+                    if file_path.stat().st_size > self.max_file_size:
+                        return None
+                        
+                    # Check filename first for faster filtering
+                    if search_term_lower in file_path.name.lower():
+                        return str(file_path)
+                        
+                    # For content search, use memory mapping for better performance
+                    with open(file_path, 'rb') as f:
+                        # Memory map the file for faster reading
+                        with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as mm:
+                            # Search in chunks of 1MB for better performance
+                            chunk_size = 1024 * 1024
+                            offset = 0
+                            while True:
+                                chunk = mm.read(chunk_size)
+                                if not chunk:
+                                    break
+                                # Convert chunk to string once and search
+                                chunk_str = chunk.decode('utf-8', errors='ignore')
+                                if search_term_lower in chunk_str.lower():
+                                    return str(file_path)
+                                offset += len(chunk)
+                except (UnicodeDecodeError, PermissionError, OSError):
+                    pass
+                return None
+
+            # Walk through directories and collect files
+            files_to_process = []
             for root, dirs, files in os.walk(self.search_path):
                 if not self.search_running:
                     break
@@ -396,43 +435,32 @@ class FileSearchApp:
                 for file in files:
                     if not self.search_running:
                         break
+                    files_to_process.append(Path(root) / file)
+                    
+                    # Check if we've reached the maximum number of results
+                    if self.result_count >= self.max_results:
+                        break
+
+            # Process files in parallel using a thread pool
+            with ThreadPoolExecutor(max_workers=min(32, len(files_to_process))) as executor:
+                future_to_file = {executor.submit(process_file, file_path): file_path 
+                                for file_path in files_to_process}
+                
+                for future in as_completed(future_to_file):
+                    if not self.search_running:
+                        break
                         
-                    file_path = Path(root) / file
-                    try:
-                        # Skip binary and system files early
-                        if file_path.suffix.lower() in skip_extensions:
-                            continue
-                            
-                        # Check file size before reading
-                        if file_path.stat().st_size > self.max_file_size:
-                            continue
-                            
+                    result = future.result()
+                    if result:
+                        self.root.after(0, self.add_result, result)
+                        self.result_count += 1
+                        
                         # Check if we've reached the maximum number of results
                         if self.result_count >= self.max_results:
-                            self.root.after(0, self.add_result, f"Maximum number of results ({self.max_results}) reached.")
-                            return
-                            
-                        # Check filename first for faster filtering
-                        if search_term_lower in file.lower():
-                            self.root.after(0, self.add_result, str(file_path))
-                            self.result_count += 1
-                            continue
-                            
-                        # For content search, use a larger chunk size for better performance
-                        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                            # Read file in larger chunks (32KB) for better performance
-                            while True:
-                                chunk = f.read(32768)  # Read 32KB at a time
-                                if not chunk:
-                                    break
-                                if search_term_lower in chunk.lower():
-                                    self.root.after(0, self.add_result, str(file_path))
-                                    self.result_count += 1
-                                    break
-                    except (UnicodeDecodeError, PermissionError):
-                        continue
+                            break
+
         except Exception as e:
-            self.root.after(0, self.add_result, "Error: {}".format(str(e)))
+            self.root.after(0, self.add_result, f"Error: {str(e)}")
         finally:
             self.root.after(0, self.cancel_button.config, {'state': 'disabled'})
             # Stop spinner

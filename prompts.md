@@ -530,3 +530,7 @@ file search does not work
     ```
 
 1. You broke the responsive layout again.
+
+# Chat 3
+
+1. The app takes over 1 minute to find files in a large directory. I want the search to take 1 second.
