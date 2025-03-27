@@ -40,13 +40,13 @@ class IconListbox(tk.Listbox):
             
     def _get_file_icon(self, file_path):
         try:
-            # Get file info with SHGFI_USEFILEATTRIBUTES flag
-            info = win32gui.SHGetFileInfo(file_path, 0, win32con.SHGFI_ICON | win32con.SHGFI_SMALLICON | win32con.SHGFI_USEFILEATTRIBUTES)
-            if not info:
+            # Get file info using Shell_NotifyIcon
+            large, small = win32gui.ExtractIconEx(file_path, 0)
+            if not small:
                 return None
                 
             # Get icon handle
-            icon_handle = info[0]
+            icon_handle = small[0]
             if not icon_handle:
                 return None
                 
