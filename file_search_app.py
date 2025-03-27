@@ -148,25 +148,25 @@ class LineNumberedText(tk.Text):
     def update_content(self, content):
         try:
             # Ensure text widget is enabled
-            self.content_text.configure(state='normal')
+            self.configure(state='normal')
             
             # Clear existing content
-            self.content_text.delete('1.0', tk.END)
+            self.delete('1.0', tk.END)
             
             # Insert new content
-            self.content_text.insert('1.0', content)
+            self.insert('1.0', content)
             
             # Update line numbers
-            self.content_text._update_line_numbers()
+            self._update_line_numbers()
             
             # Ensure the text area is visible
-            self.content_text.see('1.0')
+            self.see('1.0')
             
             # Force update
-            self.root.update_idletasks()
+            self.master.update_idletasks()
             
             # Ensure text widget stays enabled
-            self.content_text.configure(state='normal')
+            self.configure(state='normal')
         except Exception as e:
             print(f"Error updating content: {e}")
             
@@ -462,6 +462,7 @@ class FileSearchApp:
     def add_result(self, file_path):
         if self.search_running:  # Only add if search is still running
             try:
+                print(f"Adding result with icon: {file_path}")
                 self.result_list.insert_with_icon(file_path)
                 self.result_list.see(tk.END)
             except Exception as e:
@@ -505,8 +506,10 @@ class FileSearchApp:
         
     def read_file_content(self, file_path):
         try:
+            print(f"Reading file: {file_path}")
             # Check file size before reading
             if Path(file_path).stat().st_size > self.max_file_size:
+                print("File too large")
                 self.root.after(0, self.update_content, "File is too large to display (>10MB)")
                 return
                 
@@ -523,8 +526,10 @@ class FileSearchApp:
                         break
                         
                 if self.file_running:  # Only update if we haven't cancelled
+                    print(f"Updating content for {file_path}")
                     self.root.after(0, self.update_content, ''.join(content))
         except Exception as e:
+            print(f"Error reading file {file_path}: {e}")
             if self.file_running:  # Only update if we haven't cancelled
                 self.root.after(0, self.update_content, "Error reading file: {}".format(str(e)))
                 
