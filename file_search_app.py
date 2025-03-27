@@ -5,6 +5,7 @@ from pathlib import Path
 import threading
 import queue
 import json
+import time
 
 class FileSearchApp:
     def __init__(self, root):
@@ -32,11 +33,19 @@ class FileSearchApp:
         dir_button = ttk.Button(dir_frame, text="Change Directory", command=self.pick_directory)
         dir_button.grid(row=0, column=1, padx=(10, 0))
         
+        # Search frame
+        search_frame = ttk.Frame(main_frame)
+        search_frame.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        
         # Search entry
         self.search_var = tk.StringVar()
         self.search_var.trace('w', self.on_search_change)
-        search_entry = ttk.Entry(main_frame, textvariable=self.search_var, width=50)
-        search_entry.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
+        search_entry = ttk.Entry(search_frame, textvariable=self.search_var, width=50)
+        search_entry.grid(row=0, column=0, sticky=(tk.W, tk.E))
+        
+        # Cancel button (initially disabled)
+        self.cancel_button = ttk.Button(search_frame, text="Cancel Search", command=self.cancel_search, state='disabled')
+        self.cancel_button.grid(row=0, column=1, padx=(10, 0))
         
         # Left frame for list
         left_frame = ttk.Frame(main_frame)
@@ -68,6 +77,7 @@ class FileSearchApp:
         right_frame.columnconfigure(0, weight=1)
         right_frame.rowconfigure(0, weight=1)
         dir_frame.columnconfigure(0, weight=1)
+        search_frame.columnconfigure(0, weight=1)
         
         # Bind listbox selection event
         self.result_list.bind('<<ListboxSelect>>', self.on_select_file)
@@ -76,12 +86,22 @@ class FileSearchApp:
         self.search_queue = queue.Queue()
         self.search_thread = None
         self.search_running = False
+        self.last_search_time = 0
+        self.search_delay = 0.5  # Delay between searches in seconds
         
         # File reading queue and thread
         self.file_queue = queue.Queue()
         self.file_thread = None
         self.file_running = False
         
+    def cancel_search(self):
+        if self.search_running:
+            self.search_running = False
+            self.cancel_button.config(state='disabled')
+            if self.search_thread:
+                self.search_thread.join(timeout=1.0)  # Wait up to 1 second for thread to finish
+            self.search_thread = None
+            
     def load_last_directory(self):
         try:
             if os.path.exists(self.last_dir_file):
@@ -109,25 +129,38 @@ class FileSearchApp:
             # Clear previous results
             self.result_list.delete(0, tk.END)
             self.content_text.delete('1.0', tk.END)
+            self.cancel_search()  # Cancel any ongoing search
         
     def on_search_change(self, *args):
+        current_time = time.time()
+        if current_time - self.last_search_time < self.search_delay:
+            # Schedule the search for later
+            self.root.after(int((self.search_delay - (current_time - self.last_search_time)) * 1000), 
+                          self.perform_search)
+            return
+            
+        self.perform_search()
+        
+    def perform_search(self):
+        self.last_search_time = time.time()
         search_term = self.search_var.get().strip()
         if search_term:
             self.start_search(search_term)
         else:
             self.result_list.delete(0, tk.END)
             self.content_text.delete('1.0', tk.END)
+            self.cancel_search()
             
     def start_search(self, search_term):
         # Cancel previous search if running
-        if self.search_running:
-            self.search_running = False
-            if self.search_thread:
-                self.search_thread.join()
+        self.cancel_search()
         
         # Clear previous results
         self.result_list.delete(0, tk.END)
         self.content_text.delete('1.0', tk.END)
+        
+        # Enable cancel button
+        self.cancel_button.config(state='normal')
         
         # Start new search
         self.search_running = True
@@ -155,10 +188,13 @@ class FileSearchApp:
                         continue
         except Exception as e:
             self.root.after(0, self.add_result, "Error: {}".format(str(e)))
+        finally:
+            self.root.after(0, self.cancel_button.config, {'state': 'disabled'})
             
     def add_result(self, file_path):
-        self.result_list.insert(tk.END, file_path)
-        self.result_list.see(tk.END)
+        if self.search_running:  # Only add if search is still running
+            self.result_list.insert(tk.END, file_path)
+            self.result_list.see(tk.END)
         
     def on_select_file(self, event):
         selection = self.result_list.curselection()
@@ -175,7 +211,8 @@ class FileSearchApp:
         if self.file_running:
             self.file_running = False
             if self.file_thread:
-                self.file_thread.join()
+                self.file_thread.join(timeout=1.0)  # Wait up to 1 second for thread to finish
+            self.file_thread = None
         
         # Clear previous content
         self.content_text.delete('1.0', tk.END)
