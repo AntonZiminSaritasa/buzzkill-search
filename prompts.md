@@ -576,3 +576,6 @@ sdb, mui, ttf, mkv, wav, raw, etl
 1. Why did you revert requirements.txt and delete LICENSE?
 
 1. You lost README.md again.
+
+1. Should we replace python with python3 in the instructions?
+

@@ -28,7 +28,7 @@ A fast file search utility for Windows that allows you to search through files b
 
 Run the program:
 ```
-python buzzkill_search.py
+python3 buzzkill_search.py
 ```
 
 ### Search Features
