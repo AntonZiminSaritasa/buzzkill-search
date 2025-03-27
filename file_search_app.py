@@ -80,17 +80,16 @@ class IconListbox(tk.Listbox):
         
     def insert_with_icon(self, index, file_path):
         try:
+            # Store the full path first
+            self.paths[index] = file_path
+            
             # Get or create icon for the file
             icon = self._get_file_icon(file_path)
             if icon:
-                # Store the full path
-                self.paths[index] = file_path
                 # Insert with icon
                 super().insert(index, " " + os.path.basename(file_path))
                 self.icons[index] = icon
             else:
-                # Store the full path
-                self.paths[index] = file_path
                 # Insert without icon
                 super().insert(index, os.path.basename(file_path))
         except Exception as e:
@@ -504,7 +503,7 @@ class FileSearchApp:
                 self.root.after(0, self.update_content, "File is too large to display (>10MB)")
                 return
                 
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
                 # Read file in chunks to save memory
                 content = []
                 while True:
@@ -523,7 +522,12 @@ class FileSearchApp:
                 self.root.after(0, self.update_content, "Error reading file: {}".format(str(e)))
                 
     def update_content(self, content):
-        self.content_text.update_content(content)
+        try:
+            self.content_text.delete('1.0', tk.END)
+            self.content_text.insert('1.0', content)
+            self.content_text._update_line_numbers()
+        except Exception as e:
+            print("Error updating content: {0}".format(e))
 
 if __name__ == "__main__":
     root = tk.Tk()
