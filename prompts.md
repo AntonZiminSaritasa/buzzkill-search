@@ -558,3 +558,5 @@ sdb, mui, ttf, mkv, wav, raw, etl
 1. Can you rename the py file?
 
 1. Did you create file_search_app.py again?
+
+1. You deleted README.md and LICENSE in 5234883dad8d2b35a8b56dca286b235b9a9c522d. I need to restore them.
