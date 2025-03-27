@@ -528,3 +528,5 @@ file search does not work
         ^^^^^^^^^^^^^^^^^^^
     AttributeError: 'FileSearchApp' object has no attribute 'update_spinner'
     ```
+
+1. You broke the responsive layout again.
