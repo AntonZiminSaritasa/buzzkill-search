@@ -51,9 +51,10 @@ class IconListbox(tk.Listbox):
         try:
             # Get SHFILEINFO structure
             flags = shellcon.SHGFI_ICON | shellcon.SHGFI_SMALLICON | shellcon.SHGFI_USEFILEATTRIBUTES
-            file_info = shell.SHGetFileInfo(file_path, 0, flags)[0]
+            shinfo = shell.SHGetFileInfo(file_path, 0, flags)
             
-            if not file_info.hIcon:
+            # shinfo is a tuple (struct, icon handle)
+            if not shinfo or not shinfo[0].hIcon:
                 return None
                 
             # Create DC and bitmap
@@ -63,7 +64,7 @@ class IconListbox(tk.Listbox):
             old_bitmap = win32gui.SelectObject(memdc, bitmap)
             
             # Draw icon
-            win32gui.DrawIconEx(memdc, 0, 0, file_info.hIcon, 16, 16, 0, None, win32con.DI_NORMAL)
+            win32gui.DrawIconEx(memdc, 0, 0, shinfo[0].hIcon, 16, 16, 0, None, win32con.DI_NORMAL)
             
             # Convert to PIL Image
             bmpinfo = win32gui.GetBitmapInfo(bitmap)
@@ -79,7 +80,7 @@ class IconListbox(tk.Listbox):
             win32gui.DeleteObject(bitmap)
             win32gui.DeleteDC(memdc)
             win32gui.ReleaseDC(0, dc)
-            win32gui.DestroyIcon(file_info.hIcon)
+            win32gui.DestroyIcon(shinfo[0].hIcon)
             
             # Convert to PhotoImage and keep reference
             photo = ImageTk.PhotoImage(im)
