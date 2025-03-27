@@ -7,6 +7,53 @@ import queue
 import json
 import subprocess
 
+class LineNumberedText(tk.Text):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        
+        # Create line numbers text widget
+        self.line_numbers = tk.Text(master, width=4, padx=3, takefocus=0, border=0,
+                                  background='lightgray', state='disabled', wrap=tk.NONE)
+        self.line_numbers.grid(row=0, column=0, sticky=(tk.N, tk.S))
+        
+        # Configure the main text widget
+        self.grid(row=0, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
+        
+        # Bind events
+        self.bind('<Key>', self._on_key)
+        self.bind('<MouseWheel>', self._on_mousewheel)
+        self.bind('<Button-4>', self._on_mousewheel)
+        self.bind('<Button-5>', self._on_mousewheel)
+        
+        # Initial line numbers
+        self._update_line_numbers()
+        
+    def _on_key(self, event):
+        self._update_line_numbers()
+        return None
+        
+    def _on_mousewheel(self, event):
+        self._update_line_numbers()
+        return None
+        
+    def _update_line_numbers(self):
+        # Get the number of lines
+        lines = self.get('1.0', tk.END).count('\n')
+        
+        # Update line numbers
+        self.line_numbers.config(state='normal')
+        self.line_numbers.delete('1.0', tk.END)
+        for i in range(1, lines + 1):
+            self.line_numbers.insert(tk.END, f'{i}\n')
+        self.line_numbers.config(state='disabled')
+        
+        # Sync scrollbars
+        self.line_numbers.yview_moveto(self.yview()[0])
+        
+    def configure(self, **kwargs):
+        super().configure(**kwargs)
+        self._update_line_numbers()
+
 class FileSearchApp:
     def __init__(self, root):
         self.root = root
@@ -68,13 +115,12 @@ class FileSearchApp:
         right_frame = ttk.Frame(main_frame)
         right_frame.grid(row=2, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(10, 0))
         
-        # Text area for file content
-        self.content_text = scrolledtext.ScrolledText(right_frame, width=70, height=30, wrap=tk.NONE)
-        self.content_text.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        # Text area for file content with line numbers
+        self.content_text = LineNumberedText(right_frame, width=70, height=30, wrap=tk.NONE)
         
         # Add horizontal scrollbar for text area
         text_scrollbar = ttk.Scrollbar(right_frame, orient=tk.HORIZONTAL, command=self.content_text.xview)
-        text_scrollbar.grid(row=1, column=0, sticky=(tk.W, tk.E))
+        text_scrollbar.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E))
         self.content_text.configure(xscrollcommand=text_scrollbar.set)
         
         # Configure grid weights
@@ -83,7 +129,7 @@ class FileSearchApp:
         main_frame.rowconfigure(2, weight=1)
         left_frame.columnconfigure(0, weight=1)
         left_frame.rowconfigure(0, weight=1)
-        right_frame.columnconfigure(0, weight=1)
+        right_frame.columnconfigure(1, weight=1)
         right_frame.rowconfigure(0, weight=1)
         dir_frame.columnconfigure(0, weight=1)
         search_frame.columnconfigure(0, weight=1)
