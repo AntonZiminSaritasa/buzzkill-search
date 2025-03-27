@@ -147,8 +147,9 @@ class LineNumberedText(tk.Text):
         
     def update_content(self, content):
         try:
-            print(f"Updating content with length: {len(content)}")
-            # Ensure text widget is enabled
+            print(f"LineNumberedText updating content with length: {len(content)}")
+            
+            # Enable text widget
             self.configure(state='normal')
             
             # Clear existing content
@@ -166,12 +167,12 @@ class LineNumberedText(tk.Text):
             # Force update
             self.master.update_idletasks()
             
-            # Ensure text widget stays enabled
+            # Keep text widget enabled
             self.configure(state='normal')
             
-            print("Content update completed")
+            print("LineNumberedText content update completed")
         except Exception as e:
-            print(f"Error updating content: {e}")
+            print(f"Error updating LineNumberedText content: {e}")
             
     def grid(self, **kwargs):
         # Override grid to place the frame instead of the text widget
@@ -278,8 +279,9 @@ class FileSearchApp:
         self.content_text.configure(font=('Courier', 10))
         self.content_text.line_numbers.configure(font=('Courier', 10))
         
-        # Ensure text area is enabled
-        self.content_text.configure(state='normal')
+        # Ensure text area is enabled and visible
+        self.content_text.configure(state='normal', background='white')
+        self.content_text.frame.configure(background='white')
         
         # Bind listbox selection event
         self.result_list.bind('<<ListboxSelect>>', self.on_select_file)
