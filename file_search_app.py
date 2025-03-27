@@ -509,14 +509,17 @@ class FileSearchApp:
             if not selection:
                 return
                 
+            print(f"File selected: {selection[0]}")
             # Store the selection
             self._last_selection = selection
                 
             # Get the full file path from the paths cache
             file_path = self.result_list.get_full_path(selection[0])
             if not file_path:
+                print("No file path found")
                 return
                 
+            print(f"Selected file path: {file_path}")
             if isinstance(file_path, str) and file_path.startswith("Error:"):
                 self.content_text.delete('1.0', tk.END)
                 self.content_text.insert('1.0', file_path)
@@ -524,6 +527,7 @@ class FileSearchApp:
                 
             # Cancel previous file reading if running
             if self.file_running:
+                print("Cancelling previous file reading")
                 self.file_running = False
                 if self.file_thread:
                     self.file_thread.join(timeout=1.0)  # Wait up to 1 second for thread to finish
@@ -538,13 +542,19 @@ class FileSearchApp:
             self.file_thread = threading.Thread(target=self.read_file_content, args=(file_path,))
             self.file_thread.daemon = True
             self.file_thread.start()
+            print("File reading thread started")
         finally:
             self.file_selection_lock.release()
         
     def read_file_content(self, file_path):
         try:
+            print(f"Starting to read file: {file_path}")
             # Check file size before reading
-            if Path(file_path).stat().st_size > self.max_file_size:
+            file_size = Path(file_path).stat().st_size
+            print(f"File size: {file_size} bytes")
+            
+            if file_size > self.max_file_size:
+                print("File too large, showing message")
                 self.root.after(0, self.update_content, "File is too large to display (>10MB)")
                 return
                 
@@ -561,13 +571,17 @@ class FileSearchApp:
                         break
                         
                 if self.file_running:  # Only update if we haven't cancelled
-                    self.root.after(0, self.update_content, ''.join(content))
+                    final_content = ''.join(content)
+                    print(f"Read {len(final_content)} characters")
+                    self.root.after(0, self.update_content, final_content)
         except Exception as e:
+            print(f"Error reading file: {str(e)}")
             if self.file_running:  # Only update if we haven't cancelled
-                self.root.after(0, self.update_content, "Error reading file: {}".format(str(e)))
+                self.root.after(0, self.update_content, f"Error reading file: {str(e)}")
                 
     def update_content(self, content):
         try:
+            print("Updating content...")
             # Clear existing content
             self.content_text.delete('1.0', tk.END)
             
@@ -579,8 +593,9 @@ class FileSearchApp:
             
             # Force update
             self.root.update_idletasks()
+            print("Content update complete")
         except Exception as e:
-            print("Error updating content: {0}".format(e))
+            print(f"Error updating content: {str(e)}")
 
 if __name__ == "__main__":
     root = tk.Tk()
