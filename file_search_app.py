@@ -168,6 +168,10 @@ class FileSearchApp:
         text_scrollbar.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E))  # Added columnspan=2 to span both columns
         self.content_text.configure(xscrollcommand=text_scrollbar.set)
         
+        # Add status bar at the bottom
+        self.status_bar = ttk.Label(main_frame, text="", anchor=tk.W, padding=(5, 2))
+        self.status_bar.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(5, 0))
+        
         # Configure text area with proper styling
         self.content_text.configure(
             font=('Courier', 10),
@@ -271,12 +275,10 @@ class FileSearchApp:
         
     def save_last_directory(self):
         try:
-            # Create the directory if it doesn't exist
-            os.makedirs(os.path.dirname(self.last_dir_file), exist_ok=True)
             with open(self.last_dir_file, 'w') as f:
                 json.dump({'last_directory': self.search_path}, f)
-        except Exception as e:
-            print(f"Error saving last directory: {e}")
+        except Exception:
+            pass
             
     def pick_directory(self):
         directory = filedialog.askdirectory(initialdir=self.search_path)
@@ -396,13 +398,18 @@ class FileSearchApp:
         try:
             selection = self.result_list.curselection()
             if not selection:
+                self.status_bar.config(text="")
                 return
                 
             # Get the full path from our dictionary
             index = selection[0]
             file_path = self.file_paths.get(index)
             if not file_path:
+                self.status_bar.config(text="")
                 return
+                
+            # Update status bar with full path
+            self.status_bar.config(text=file_path)
                 
             if file_path.startswith("Error:"):
                 self.content_text.delete('1.0', tk.END)
@@ -455,10 +462,10 @@ class FileSearchApp:
                     print(f"Content length: {len(final_content)}")
                     self.root.after(0, lambda: self.content_text.update_content(final_content))
         except Exception as e:
-            error_msg = f"Error reading file {file_path}: {str(e)}"
-            print(error_msg)
+            error_msg = str(e)
+            print(f"Error reading file {file_path}: {error_msg}")
             if self.file_running:  # Only update if we haven't cancelled
-                self.root.after(0, lambda msg=error_msg: self.content_text.update_content(msg))
+                self.root.after(0, lambda msg=error_msg: self.content_text.update_content(f"Error reading file: {msg}"))
                 
     def update_content(self, content):
         try:
