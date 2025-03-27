@@ -133,7 +133,7 @@ class FileSearchApp:
         left_frame.grid_columnconfigure(0, weight=1)
         
         # Listbox for results
-        self.result_list = tk.Listbox(left_frame, width=70, height=30)
+        self.result_list = tk.Listbox(left_frame, width=70, height=30, exportselection=False)
         self.result_list.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Scrollbar for listbox
