@@ -82,7 +82,7 @@ class FileSearchApp:
                     except (UnicodeDecodeError, PermissionError):
                         continue
         except Exception as e:
-            self.root.after(0, self.add_result, f"Error: {str(e)}")
+            self.root.after(0, self.add_result, "Error: {}".format(str(e)))
             
     def add_result(self, file_path):
         self.result_list.insert(tk.END, file_path)
