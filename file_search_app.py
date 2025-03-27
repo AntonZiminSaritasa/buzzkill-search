@@ -523,9 +523,20 @@ class FileSearchApp:
                 
     def update_content(self, content):
         try:
+            # Clear existing content
             self.content_text.delete('1.0', tk.END)
+            
+            # Insert new content
             self.content_text.insert('1.0', content)
+            
+            # Update line numbers
             self.content_text._update_line_numbers()
+            
+            # Ensure the text area is visible
+            self.content_text.see('1.0')
+            
+            # Force update
+            self.root.update_idletasks()
         except Exception as e:
             print("Error updating content: {0}".format(e))
 
