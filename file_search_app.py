@@ -166,6 +166,7 @@ class FileSearchApp:
         # Bind focus events to maintain listbox selection
         self.result_list.bind('<FocusOut>', self._on_listbox_focus_out)
         self.content_text.bind('<FocusIn>', self._on_text_focus_in)
+        self.content_text.bind('<FocusOut>', self._on_text_focus_out)
         
         # Create context menu
         self.context_menu = tk.Menu(root, tearoff=0)
@@ -199,6 +200,12 @@ class FileSearchApp:
         self._last_selection = self.result_list.curselection()
         
     def _on_text_focus_in(self, event):
+        # Restore the listbox selection if it exists
+        if self._last_selection:
+            self.result_list.selection_set(self._last_selection[0])
+            self.result_list.see(self._last_selection[0])
+            
+    def _on_text_focus_out(self, event):
         # Restore the listbox selection if it exists
         if self._last_selection:
             self.result_list.selection_set(self._last_selection[0])
