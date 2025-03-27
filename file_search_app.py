@@ -106,7 +106,7 @@ class IconListbox(tk.Listbox):
         try:
             # Get file info
             flags = shellcon.SHGFI_ICON | shellcon.SHGFI_SMALLICON
-            file_info = shell.SHGetFileInfo(file_path, 0, flags)[0]
+            file_info = shell.SHGetFileInfo(file_path, 0, flags)
             
             # Get icon handle
             icon_handle = file_info[0]
