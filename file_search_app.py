@@ -25,8 +25,17 @@ class LineNumberedText(tk.Text):
         self.bind('<Button-4>', self._on_mousewheel)
         self.bind('<Button-5>', self._on_mousewheel)
         
+        # Prevent focus stealing
+        self.bind('<Button-1>', self._on_click)
+        self.bind('<Button-2>', self._on_click)
+        self.bind('<Button-3>', self._on_click)
+        
         # Initial line numbers
         self._update_line_numbers()
+        
+    def _on_click(self, event):
+        # Don't take focus when clicking
+        return "break"
         
     def _on_key(self, event):
         self._update_line_numbers()
