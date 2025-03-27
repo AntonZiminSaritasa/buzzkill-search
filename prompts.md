@@ -601,3 +601,5 @@ sdb, mui, ttf, mkv, wav, raw, etl
 cannot mmap an empty file
 
 1. Can you skip binary files?
+
+1. Why did you revert requirements.txt, LICENSE, and README.md again?
