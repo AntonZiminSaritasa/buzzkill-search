@@ -572,3 +572,5 @@ sdb, mui, ttf, mkv, wav, raw, etl
 1. Why did you delete all instructions from README.md?
 
 1. No, README.md does not have the correct content.
+
+1. Why did you revert requirements.txt and delete LICENSE?
