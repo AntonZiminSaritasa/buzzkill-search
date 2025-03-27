@@ -6,6 +6,79 @@ import threading
 import queue
 import json
 import subprocess
+import win32gui
+import win32con
+import win32api
+from PIL import Image, ImageTk
+import io
+
+class IconListbox(tk.Listbox):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        self.icon_cache = {}
+        self.file_paths = {}
+        
+    def insert_with_icon(self, file_path):
+        try:
+            # Store the full path
+            self.file_paths[self.size()] = file_path
+            
+            # Get file icon
+            icon = self._get_file_icon(file_path)
+            if icon:
+                self.icon_cache[self.size()] = icon
+                self.insert(tk.END, f"  {os.path.basename(file_path)}")
+            else:
+                self.insert(tk.END, file_path)
+        except Exception as e:
+            print(f"Error inserting file with icon: {e}")
+            self.insert(tk.END, file_path)
+            
+    def _get_file_icon(self, file_path):
+        try:
+            # Get file info
+            info = win32gui.SHGetFileInfo(file_path, 0, win32con.SHGFI_ICON | win32con.SHGFI_SMALLICON)
+            if not info:
+                return None
+                
+            # Get icon handle
+            icon_handle = info[0]
+            if not icon_handle:
+                return None
+                
+            # Create DC and bitmap
+            dc = win32gui.GetDC(self.winfo_id())
+            bitmap = win32gui.CreateCompatibleBitmap(dc, 16, 16)
+            memdc = win32gui.CreateCompatibleDC(dc)
+            old_bitmap = win32gui.SelectObject(memdc, bitmap)
+            
+            # Draw icon
+            win32gui.DrawIconEx(memdc, 0, 0, icon_handle, 16, 16, 0, None, win32con.DI_NORMAL)
+            
+            # Convert to PIL Image
+            bmpinfo = win32gui.GetBitmapInfo(bitmap)
+            bmpstr = win32gui.GetBitmapBits(bitmap, True)
+            im = Image.frombuffer(
+                'RGBA',
+                (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
+                bmpstr, 'raw', 'BGRA', 0, 1)
+            
+            # Clean up
+            win32gui.SelectObject(memdc, old_bitmap)
+            win32gui.DeleteObject(bitmap)
+            win32gui.DeleteDC(memdc)
+            win32gui.ReleaseDC(self.winfo_id(), dc)
+            win32gui.DestroyIcon(icon_handle)
+            
+            # Convert to PhotoImage
+            return ImageTk.PhotoImage(im)
+        except Exception as e:
+            print(f"Error getting icon for {file_path}: {e}")
+            return None
+            
+    def get(self, index):
+        # Return the full path instead of just the filename
+        return self.file_paths.get(index, super().get(index))
 
 class LineNumberedText(tk.Text):
     def __init__(self, master, **kwargs):
