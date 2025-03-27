@@ -5,7 +5,6 @@ from pathlib import Path
 import threading
 import queue
 import json
-import time
 import subprocess
 
 class FileSearchApp:
@@ -125,15 +124,14 @@ class FileSearchApp:
             return
             
         try:
-            # Convert to Path object and get parent directory
-            path = Path(file_path)
-            folder_path = str(path.parent)
+            # Convert to Path object and get absolute path
+            path = Path(file_path).resolve()
             
-            # Open folder in File Explorer
+            # Open folder in File Explorer with file selected
             if os.name == 'nt':  # Windows
-                subprocess.run(['explorer', folder_path])
+                subprocess.run(['explorer', '/select,', str(path)])
             else:  # Linux/Mac
-                subprocess.run(['xdg-open', folder_path])
+                subprocess.run(['xdg-open', str(path.parent)])
         except Exception as e:
             print(f"Error opening folder: {e}")
             
