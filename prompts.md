@@ -550,3 +550,7 @@ sdb, mui, ttf, mkv, wav, raw, etl
     ```
     Error reading file C:\Windows\diagnostics\system\Device\CL_Utility.ps1: 'utf-8' codec can't decode byte 0xa9 in position 12: invalid start byte
     ```
+
+1. Let's add file name filter to the UI.
+
+1. Rename the program to buzzkill-search.

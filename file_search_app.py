@@ -1,4 +1,6 @@
 """
+Buzzkill Search - A fast file search utility
+
 MIT License
 
 Copyright (c) 2025 Anton Zimin
@@ -119,7 +121,7 @@ class LineNumberedText(tk.Text):
 class FileSearchApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("File Search")
+        self.root.title("Buzzkill Search")
         self.root.geometry("1200x600")
         
         # Configure root window grid weights
@@ -174,6 +176,7 @@ class FileSearchApp:
         
         # Configure search frame grid weights
         search_frame.grid_columnconfigure(0, weight=1)
+        search_frame.grid_columnconfigure(1, weight=1)
         
         # Search entry
         self.search_var = tk.StringVar()
@@ -181,9 +184,17 @@ class FileSearchApp:
         search_entry = ttk.Entry(search_frame, textvariable=self.search_var, width=50)
         search_entry.grid(row=0, column=0, sticky=(tk.W, tk.E))
         
+        # File name filter entry
+        self.filter_var = tk.StringVar()
+        self.filter_var.trace('w', self.on_search_change)
+        filter_label = ttk.Label(search_frame, text="File filter:")
+        filter_label.grid(row=0, column=1, sticky=(tk.W), padx=(10, 5))
+        filter_entry = ttk.Entry(search_frame, textvariable=self.filter_var, width=20)
+        filter_entry.grid(row=0, column=2, sticky=(tk.W, tk.E))
+        
         # Cancel button (initially disabled)
         self.cancel_button = ttk.Button(search_frame, text="Cancel Search", command=self.cancel_search, state='disabled')
-        self.cancel_button.grid(row=0, column=1, padx=(10, 0))
+        self.cancel_button.grid(row=0, column=3, padx=(10, 0))
         
         # Left frame for list
         left_frame = ttk.Frame(main_frame)
@@ -471,6 +482,13 @@ class FileSearchApp:
             # Convert search term to lowercase once
             search_term_lower = search_term.lower()
             
+            # Get file name filter pattern
+            filter_pattern = self.filter_var.get().strip()
+            if filter_pattern:
+                # Convert glob pattern to regex
+                filter_pattern = filter_pattern.replace('*', '.*').replace('?', '.')
+                filter_regex = re.compile(filter_pattern, re.IGNORECASE)
+            
             # Create sets for fast lookups
             skip_extensions = {'.exe', '.dll', '.pdb', '.cache', '.tmp', '.log', '.bin', '.dat', '.sys', '.msi', '.cab', '.zip', '.rar', '.7z', '.iso', '.img', '.vhd', '.vhdx', '.sdb', '.mui', '.ttf', '.mkv', '.wav', '.raw', '.etl'}
             skip_dirs = {'System32', 'SysWOW64', 'WinSxS', 'assembly', 'Microsoft.NET', 'WindowsApps', 'Installer', 'SoftwareDistribution', 'Prefetch', 'Temp'}
@@ -484,6 +502,10 @@ class FileSearchApp:
                         
                     # Check file size before reading
                     if file_path.stat().st_size > self.max_file_size:
+                        return None
+                        
+                    # Apply file name filter if specified
+                    if filter_pattern and not filter_regex.match(file_path.name):
                         return None
                         
                     # Check filename first for faster filtering
