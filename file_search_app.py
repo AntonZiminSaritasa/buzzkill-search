@@ -125,7 +125,7 @@ class IconListbox(tk.Listbox):
                 # Insert without icon
                 super().insert(index, os.path.basename(file_path))
         except Exception as e:
-            print("Error inserting file {0}: {1}".format(file_path, e))
+            print(f"Error inserting file {file_path}: {e}")
             self.paths[index] = file_path
             super().insert(index, os.path.basename(file_path))
             
@@ -177,7 +177,7 @@ class IconListbox(tk.Listbox):
             
             return photo
         except Exception as e:
-            print("Error getting icon for {0}: {1}".format(file_path, e))
+            print(f"Error getting icon for {file_path}: {e}")
             return None
 
 class FileSearchApp:
@@ -494,10 +494,13 @@ class FileSearchApp:
     def add_result(self, file_path):
         if self.search_running:  # Only add if search is still running
             try:
-                self.result_list.insert_with_icon(tk.END, file_path)
+                # Convert to string if it's a Path object
+                file_path_str = str(file_path)
+                print(f"Adding result: {file_path_str}")
+                self.result_list.insert_with_icon(tk.END, file_path_str)
                 self.result_list.see(tk.END)
             except Exception as e:
-                print("Error adding result {0}: {1}".format(file_path, e))
+                print(f"Error adding result {file_path}: {e}")
         
     def on_select_file(self, event):
         # Use a lock to prevent multiple simultaneous file selections
