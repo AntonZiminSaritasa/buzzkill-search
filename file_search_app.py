@@ -49,44 +49,68 @@ class IconListbox(tk.Listbox):
             
     def _get_file_icon(self, file_path):
         try:
-            # Get SHFILEINFO structure
-            flags = (shellcon.SHGFI_ICON | shellcon.SHGFI_SMALLICON | 
-                    shellcon.SHGFI_USEFILEATTRIBUTES)
+            # Get file extension
+            ext = os.path.splitext(file_path)[1].lower()
+            if not ext:
+                ext = '.' + os.path.basename(file_path)  # For files without extension
             
-            # Get icon info - returns (hIcon, SHFILEINFO structure)
-            icon_handle = shell.SHGetFileInfo(file_path, 0, flags)[0]
+            # Try to get icon from extension
+            try:
+                # Get icon from file type
+                large, small = win32gui.ExtractIconEx(file_path, 0)
+                if small:
+                    icon_handle = small[0]
+                    if large:
+                        for i in large:
+                            win32gui.DestroyIcon(i)
+                    for i in small[1:]:
+                        win32gui.DestroyIcon(i)
+                elif large:
+                    icon_handle = large[0]
+                    for i in large[1:]:
+                        win32gui.DestroyIcon(i)
+                else:
+                    return None
+            except Exception:
+                # Fallback to default icon
+                return None
             
             if not icon_handle:
                 return None
                 
-            # Create DC and bitmap
-            dc = win32gui.GetDC(0)
-            memdc = win32gui.CreateCompatibleDC(dc)
-            bitmap = win32gui.CreateCompatibleBitmap(dc, 16, 16)
-            old_bitmap = win32gui.SelectObject(memdc, bitmap)
-            
-            # Draw icon
-            win32gui.DrawIconEx(memdc, 0, 0, icon_handle, 16, 16, 0, None, win32con.DI_NORMAL)
-            
-            # Convert to PIL Image
-            bmpinfo = win32gui.GetBitmapInfo(bitmap)
-            bmpstr = win32gui.GetBitmapBits(bitmap, True)
-            im = Image.frombuffer(
-                'RGBA',
-                (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
-                bmpstr, 'raw', 'BGRA', 0, 1
-            )
-            
-            # Clean up
-            win32gui.SelectObject(memdc, old_bitmap)
-            win32gui.DeleteObject(bitmap)
-            win32gui.DeleteDC(memdc)
-            win32gui.ReleaseDC(0, dc)
-            win32gui.DestroyIcon(icon_handle)
-            
-            # Convert to PhotoImage and keep reference
-            photo = ImageTk.PhotoImage(im)
-            return photo
+            try:
+                # Create DC and bitmap
+                dc = win32gui.GetDC(0)
+                memdc = win32gui.CreateCompatibleDC(dc)
+                bitmap = win32gui.CreateCompatibleBitmap(dc, 16, 16)
+                old_bitmap = win32gui.SelectObject(memdc, bitmap)
+                
+                # Draw icon
+                win32gui.DrawIconEx(memdc, 0, 0, icon_handle, 16, 16, 0, None, win32con.DI_NORMAL)
+                
+                # Convert to PIL Image
+                bmpinfo = win32gui.GetBitmapInfo(bitmap)
+                bmpstr = win32gui.GetBitmapBits(bitmap, True)
+                im = Image.frombuffer(
+                    'RGBA',
+                    (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
+                    bmpstr, 'raw', 'BGRA', 0, 1
+                )
+                
+                # Clean up
+                win32gui.SelectObject(memdc, old_bitmap)
+                win32gui.DeleteObject(bitmap)
+                win32gui.DeleteDC(memdc)
+                win32gui.ReleaseDC(0, dc)
+                win32gui.DestroyIcon(icon_handle)
+                
+                # Convert to PhotoImage and keep reference
+                photo = ImageTk.PhotoImage(im)
+                return photo
+            except Exception as e:
+                if icon_handle:
+                    win32gui.DestroyIcon(icon_handle)
+                raise e
         except Exception as e:
             print(f"Error getting icon for {file_path}: {e}")
             return None
