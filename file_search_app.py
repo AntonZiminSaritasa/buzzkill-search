@@ -87,7 +87,7 @@ class FileSearchApp:
         root.grid_columnconfigure(0, weight=1)
         
         # Load last directory
-        self.last_dir_file = "last_directory.json"
+        self.last_dir_file = os.path.join(os.path.expanduser("~"), ".file_search_app", "last_directory.json")
         self.search_path = self.load_last_directory()
         
         # Memory limits
