@@ -24,7 +24,7 @@ SOFTWARE.
 
 import tkinter as tk
 from tkinter import ttk
-import math
+import random
 import time
 
 class SubwaySurferAnimation:
@@ -174,7 +174,7 @@ class SubwaySurferAnimation:
         self.check_collisions()
         
         # Randomly trigger jumps
-        if not self.character_jumping and math.random() < 0.02:
+        if not self.character_jumping and random.random() < 0.02:
             self.jump()
             
         self.window.after(16, self.animate)  # ~60 FPS
