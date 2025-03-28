@@ -723,3 +723,10 @@ It fails:
     ```
 
 1. You were not able to remove the trailing space.
+
+1.
+    ```
+    dpkg-source: info: using options from cursor-test/debian/source/options: --extend-diff-ignore=\.pyc$
+    ' is invalid error: source package format '��3.0 (quilt)
+    dpkg-buildpackage: error: dpkg-source --before-build . subprocess returned exit status 25
+    ```
