@@ -621,3 +621,20 @@ cannot mmap an empty file
 1. Let's publish the app to Launchpad.
 
 1. Change example.com to saritasa.com. Change version 1.0.0 to 0.1.0.
+
+1.
+    ```
+    root@DESKTOP-UVF4E5V:/mnt/d/Work/Cursor/cursor-test# dpkg-buildpackage -S -us -uc
+    dpkg-buildpackage: info: source package buzzkill-search
+    dpkg-buildpackage: info: source version 0.1.0
+    dpkg-buildpackage: info: source distribution unstable
+    dpkg-buildpackage: info: source changed by Anton Zimin <anton.zimin@saritasa.com>
+    dpkg-source --before-build .
+    debian/rules clean
+    : No such file or directory
+    cc      -o .o
+    cc: fatal error: no input files
+    compilation terminated.
+    make: *** [<builtin>: .o] Error 1
+    dpkg-buildpackage: error: debian/rules clean subprocess returned exit status 2
+    ```
