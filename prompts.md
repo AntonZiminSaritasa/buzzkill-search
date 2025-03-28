@@ -715,3 +715,11 @@ It fails:
     dpkg-source: error: unable to change permission of 'buzzkill-search_0.1.0.tar.gz': No such file or directory
     dpkg-buildpackage: error: dpkg-source -b . subprocess returned exit status 2
     ```
+
+1. 
+    ```
+    dpkg-source: error: source package format '3.0 (quilt) ' is invalid
+    dpkg-buildpackage: error: dpkg-source --before-build . subprocess returned exit status 255
+    ```
+
+1. You were not able to remove the trailing space.
