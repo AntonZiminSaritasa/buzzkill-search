@@ -787,3 +787,8 @@ dpkg-buildpackage was successful.
         module = __import__(self.module_name, fromlist=['__name__'], level=0)
     ModuleNotFoundError: No module named 'buzzkill_search'
     ```
+
+1.
+    ```
+    dpkg-buildpackage: error: cannot open file debian/changelog: No such file or directory
+    ```
