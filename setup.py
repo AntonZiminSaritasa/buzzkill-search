@@ -28,4 +28,5 @@ setup(
         "Topic :: Desktop Environment :: File Managers",
     ],
     python_requires=">=3.8",
+    zip_safe=False,
 ) 

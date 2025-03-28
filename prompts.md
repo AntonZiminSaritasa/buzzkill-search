@@ -765,3 +765,25 @@ It fails:
     dh_builddeb: error: Aborting due to earlier error
     dpkg-buildpackage: error: debian/rules binary subprocess returned exit status 2
     ```
+
+1.
+```
+dpkg-buildpackage was successful.
+```
+
+1.
+    ```
+    root@DESKTOP-UVF4E5V:/tmp/cursor/Cursor# buzzkill-search
+    Traceback (most recent call last):
+    File "/usr/bin/buzzkill-search", line 11, in <module>
+        load_entry_point('buzzkill-search==0.1.0', 'console_scripts', 'buzzkill-search')()
+    File "/usr/lib/python3/dist-packages/pkg_resources/__init__.py", line 490, in load_entry_point
+        return get_distribution(dist).load_entry_point(group, name)
+    File "/usr/lib/python3/dist-packages/pkg_resources/__init__.py", line 2854, in load_entry_point
+        return ep.load()
+    File "/usr/lib/python3/dist-packages/pkg_resources/__init__.py", line 2445, in load
+        return self.resolve()
+    File "/usr/lib/python3/dist-packages/pkg_resources/__init__.py", line 2451, in resolve
+        module = __import__(self.module_name, fromlist=['__name__'], level=0)
+    ModuleNotFoundError: No module named 'buzzkill_search'
+    ```

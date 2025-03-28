@@ -1,1 +1,6 @@
 __pycache__/
+buzzkill_search.egg-info/
+debian/.debhelper/
+debian/buzzkill-search/DEBIAN/
+debian/buzzkill-search/usr/
+.pybuild/
