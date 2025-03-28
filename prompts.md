@@ -821,3 +821,31 @@ dpkg-buildpackage was successful.
         from .buzzkill_search import main
     ImportError: cannot import name 'main' from 'buzzkill_search.buzzkill_search' (/tmp/cursor/cursor-test/.pybuild/cpython3_3.8/build/buzzkill_search/buzzkill_search.py)
     ```
+
+1. The package is working.
+
+1. Yes, upload it to Launchpad.
+
+1.
+    ```
+    root@DESKTOP-UVF4E5V:/tmp/cursor/cursor-test# dput ppa:antonziminsaritasa/buzzkill-search ../buzzkill-search_0.1.0-1_source.changes
+    Can't open ../buzzkill-search_0.1.0-1_source.changes
+    ```
+
+1.
+    ```
+    I see another file buzzkill-search_0.1.0_amd64.changes.
+    ```
+
+1.
+    ```
+    root@DESKTOP-UVF4E5V:/tmp/cursor# dput ppa:antonziminsaritasa/buzzkill-search buzzkill-search_0.1.0_source.changes
+    Checking signature on .changes
+    gpg: /tmp/cursor/buzzkill-search_0.1.0_source.changes: error 58: gpgme_op_verify
+    gpgme_op_verify: GPGME: No data
+    ```
+
+1.
+    ```
+    dput ppa:antonziminsaritasa/buzzkill-search ../buzzkill-search_0.1.0_source.changes
+    ```
