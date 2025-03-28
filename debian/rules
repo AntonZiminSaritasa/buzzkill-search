@@ -1,14 +1,3 @@
 #!/usr/bin/make -f
-# -*- makefile -*-
-
 %:
-	dh $@ --with python3 --buildsystem=pybuild
-
-override_dh_auto_install:
-	dh_auto_install
-	mkdir -p debian/buzzkill-search/usr/share/applications
-	install -m 644 debian/buzzkill-search.desktop debian/buzzkill-search/usr/share/applications/
-
-override_dh_auto_clean:
-	dh_auto_clean
-	rm -rf build/ dist/ *.egg-info/ 
+	dh $@ --with python3 --buildsystem=pybuild 

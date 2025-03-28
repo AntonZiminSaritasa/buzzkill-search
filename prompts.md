@@ -640,3 +640,8 @@ cannot mmap an empty file
     ```
 
 1. ./debian/rules is executable but it does not work. The makefile does not have any source files.
+
+1.
+    ```
+    dpkg-buildpackage: error: debian/rules clean subprocess returned exit status 2
+    ```
