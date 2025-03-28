@@ -792,3 +792,8 @@ dpkg-buildpackage was successful.
     ```
     dpkg-buildpackage: error: cannot open file debian/changelog: No such file or directory
     ```
+
+1.
+    ```
+    dpkg-buildpackage: error: cannot read debian/control: No such file or directory
+    ```
