@@ -1,8 +1,8 @@
 # Manually Edited Files
 
-- .gitignore
-- 2025-03-27_145518.png
-- prompts.md
+- [.gitignore](.gitignore)
+- [2025-03-27_145518.png](2025-03-27_145518.png)
+- [prompts.md](prompts.md)
 
 # Chat 1
 
@@ -617,3 +617,5 @@ cannot mmap an empty file
 1. Show me the statements with copy commands you want me to execute.
 
 1. Let's add a shebang.
+
+1. Let's publish the app to Launchpad.
