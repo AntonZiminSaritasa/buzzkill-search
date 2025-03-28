@@ -680,3 +680,7 @@ It fails:
     ```
 
 1. Can you use entry_points in setup.py and erevert debian/rules to its standard configuration? Also, remove tkinter from setup.py because it can't be installed via pip.
+
+1. Your shebang in debian/rules is completely wrong.
+
+1. dpkg-buildpackage does not work with the shebang.
