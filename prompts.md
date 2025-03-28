@@ -684,3 +684,34 @@ It fails:
 1. Your shebang in debian/rules is completely wrong.
 
 1. dpkg-buildpackage does not work with the shebang.
+
+1.
+    ```
+    root@DESKTOP-UVF4E5V:/mnt/d/Work/Cursor/cursor-test# dpkg-buildpackage -us -uc
+    dpkg-buildpackage: info: source package buzzkill-search
+    dpkg-buildpackage: info: source version 0.1.0
+    dpkg-buildpackage: info: source distribution unstable
+    dpkg-buildpackage: info: source changed by Anton Zimin <anton.zimin@saritasa.com>
+    dpkg-buildpackage: info: host architecture amd64
+    dpkg-source --before-build .
+    dpkg-source: info: using options from cursor-test/debian/source/options: --extend-diff-ignore=\.pyc$
+    debian/rules clean
+    : not founds: 2:
+    : not founds: 3: %:
+    dh_auto_clean -O--buildsystem=pybuild
+    I: pybuild base:217: python3.8 setup.py clean
+    running clean
+    removing '/mnt/d/Work/Cursor/cursor-test/.pybuild/cpython3_3.8/build' (and everything under it)
+    'build/bdist.linux-x86_64' does not exist -- can't clean it
+    'build/scripts-3.8' does not exist -- can't clean it
+    dh_autoreconf_clean -O--buildsystem=pybuild
+    dh_clean -O--buildsystem=pybuild
+    dpkg-source -b .
+    dpkg-source: info: using options from cursor-test/debian/source/options: --extend-diff-ignore=\.pyc$
+    dpkg-source: warning: no source format specified in debian/source/format, see dpkg-source(1)
+    dpkg-source: info: using source format '1.0'
+    dpkg-source: warning: source directory 'cursor-test' is not <sourcepackage>-<upstreamversion> 'buzzkill-search-0.1.0'
+    dpkg-source: info: building buzzkill-search in buzzkill-search_0.1.0.tar.gz
+    dpkg-source: error: unable to change permission of 'buzzkill-search_0.1.0.tar.gz': No such file or directory
+    dpkg-buildpackage: error: dpkg-source -b . subprocess returned exit status 2
+    ```
