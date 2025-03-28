@@ -1,1 +1,1 @@
-debian/buzzkill-search.desktop usr/share/applications/ 
+buzzkill_search/buzzkill_search.py usr/bin 
