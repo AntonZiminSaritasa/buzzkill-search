@@ -849,3 +849,15 @@ dpkg-buildpackage was successful.
     ```
     dput ppa:antonziminsaritasa/buzzkill-search ../buzzkill-search_0.1.0_source.changes
     ```
+
+1. The package was uploaded to PPA. What next?
+
+1.
+    ```
+    ERROR: ppa 'antonziminsaritasa/buzzkill-search' not found (use --login if private)
+    ```
+
+1. Launchpad PPA sent me an email:<br>
+Rejected:<br>
+Unable to find distroseries: unstable<br>
+Further error processing not possible because of a critical previous error.

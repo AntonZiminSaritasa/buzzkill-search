@@ -1,4 +1,4 @@
-buzzkill-search (0.1.0) unstable; urgency=medium
+buzzkill-search (0.1.0) jammy; urgency=medium
 
   * Initial release.
   * Fast file search utility with GUI
