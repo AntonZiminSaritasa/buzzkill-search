@@ -730,3 +730,38 @@ It fails:
     ' is invalid error: source package format '��3.0 (quilt)
     dpkg-buildpackage: error: dpkg-source --before-build . subprocess returned exit status 25
     ```
+
+1.
+    ```
+    root@DESKTOP-UVF4E5V:/mnt/d/Work/Cursor/cursor-test# dpkg-buildpackage -us -uc
+    dpkg-buildpackage: info: source package buzzkill-search
+    dpkg-buildpackage: info: source version 0.1.0
+    dpkg-buildpackage: info: source distribution unstable
+    dpkg-buildpackage: info: source changed by Anton Zimin <anton.zimin@saritasa.com>
+    dpkg-buildpackage: info: host architecture amd64
+    dpkg-source --before-build .
+    dpkg-source: info: using options from cursor-test/debian/source/options: --extend-diff-ignore=\.pyc$
+    debian/rules clean
+    : not founds: 2:
+    : not founds: 3: %:
+    dh_auto_clean -O--buildsystem=pybuild
+    I: pybuild base:217: python3.8 setup.py clean
+    running clean
+    removing '/mnt/d/Work/Cursor/cursor-test/.pybuild/cpython3_3.8/build' (and everything under it)
+    'build/bdist.linux-x86_64' does not exist -- can't clean it
+    'build/scripts-3.8' does not exist -- can't clean it
+    dh_autoreconf_clean -O--buildsystem=pybuild
+    dh_clean -O--buildsystem=pybuild
+    dpkg-source -b .
+    dpkg-source: info: using options from cursor-test/debian/source/options: --extend-diff-ignore=\.pyc$
+    dpkg-source: error: can't build with source format '3.0 (quilt)': no upstream tarball found at ../buzzkill-search_0.1.0.orig.tar.{bz2,gz,lzma,xz}
+    dpkg-buildpackage: error: dpkg-source -b . subprocess returned exit status 2
+    ```
+
+1.
+    ```
+    dpkg-deb: error: control directory has bad permissions 777 (must be >=0755 and <=0775)
+    dh_builddeb: error: dpkg-deb --build debian/buzzkill-search .. returned exit code 2
+    dh_builddeb: error: Aborting due to earlier error
+    dpkg-buildpackage: error: debian/rules binary subprocess returned exit status 2
+    ```
