@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Buzzkill Search - A fast file search utility
 

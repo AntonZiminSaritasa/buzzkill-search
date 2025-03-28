@@ -615,3 +615,5 @@ cannot mmap an empty file
 1. Create the copy script and execute it.
 
 1. Show me the statements with copy commands you want me to execute.
+
+1. Let's add a shebang.
