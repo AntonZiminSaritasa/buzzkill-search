@@ -647,3 +647,9 @@ cannot mmap an empty file
     ```
 
 1. I need to build a deb package with a single Python tool - buzzkill_search/buzzkill_search.py
+
+1. You deleted the changelog:
+    ```
+    root@DESKTOP-UVF4E5V:/mnt/d/Work/Cursor/cursor-test# dpkg-buildpackage -us -uc
+    dpkg-buildpackage: error: cannot open file debian/changelog: No such file or directory
+    ```
