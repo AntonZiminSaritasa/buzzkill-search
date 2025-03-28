@@ -867,3 +867,16 @@ Further error processing not possible because of a critical previous error.
     E: Failed to fetch https://ppa.launchpadcontent.net/antonziminsaritasa/buzzkill-search/ubuntu/dists/noble/InRelease  403  Forbidden [IP: 443]
     E: The repository 'https://ppa.launchpadcontent.net/antonziminsaritasa/buzzkill-search/ubuntu noble InRelease' is not signed.
     ```
+
+1. Bump package version to 0.2.0. Add a line for every distro to debian/changelog:<br>
+jammy, kinetic, lunar, mantic, noble, oracular
+
+1. Rejected:<br>
+Unable to find buzzkill-search_0.2.0.orig.tar.gz in upload or distribution.<br>
+Files specified in DSC are broken or missing, skipping package unpack verification.
+
+1.
+    ```
+    dpkg-source: error: cannot represent change to 2025-03-27_145518.png: binary file contents changed
+    dpkg-source: error: add 2025-03-27_145518.png in debian/source/include-binaries if you want to store the modified binary in the debian tarball
+    ```
