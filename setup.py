@@ -31,4 +31,7 @@ setup(
         "Topic :: Desktop Environment :: File Managers",
     ],
     python_requires=">=3.8",
+    package_data={
+        'buzzkill_search': ['*.py'],
+    },
 ) 
