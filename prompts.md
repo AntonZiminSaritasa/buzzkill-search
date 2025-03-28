@@ -671,3 +671,12 @@ cannot mmap an empty file
     make: *** [<builtin>: .o] Error 1
     dpkg-buildpackage: error: debian/rules clean subprocess returned exit status 2
     ```
+
+1. I need to build a deb package with a single Python tool - buzzkill_search/buzzkill_search.py.<br>
+<br>
+It fails:
+    ```
+    dpkg-buildpackage: error: debian/rules clean subprocess returned exit status 2
+    ```
+
+1. Can you use entry_points in setup.py and erevert debian/rules to its standard configuration? Also, remove tkinter from setup.py because it can't be installed via pip.
