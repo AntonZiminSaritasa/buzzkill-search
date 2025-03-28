@@ -1,9 +1,4 @@
 # -*- makefile -*-
 
 %:
-	dh $@ --with python3 --buildsystem=pybuild
-
-override_dh_auto_install:
-	dh_auto_install
-	mkdir -p debian/buzzkill-search/usr/share/applications
-	install -m 644 debian/buzzkill-search.desktop debian/buzzkill-search/usr/share/applications/ 
+	dh $@ --with python3 --buildsystem=pybuild 

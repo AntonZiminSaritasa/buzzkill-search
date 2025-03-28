@@ -797,3 +797,14 @@ dpkg-buildpackage was successful.
     ```
     dpkg-buildpackage: error: cannot read debian/control: No such file or directory
     ```
+
+1.
+    ```
+    "  dh_auto_clean "-O--buildsystem=pybuild
+    "?) at /usr/share/perl5/Debian/Debhelper/Buildsystem.pm line 602.buildsystem::pybuild
+    : not founds: 5:
+    : not founds: 6: override_dh_auto_install:
+    : not founds: 7: dh_auto_install
+    install: target 'debian/buzzkill-search/usr/share/applications/' is not a directory: No such file or directory
+    dpkg-buildpackage: error: debian/rules clean subprocess returned exit status 1
+    ```
