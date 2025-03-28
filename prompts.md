@@ -653,3 +653,21 @@ cannot mmap an empty file
     root@DESKTOP-UVF4E5V:/mnt/d/Work/Cursor/cursor-test# dpkg-buildpackage -us -uc
     dpkg-buildpackage: error: cannot open file debian/changelog: No such file or directory
     ```
+
+1.
+    ```
+    root@DESKTOP-UVF4E5V:/mnt/d/Work/Cursor/cursor-test# dpkg-buildpackage -us -uc
+    dpkg-buildpackage: info: source package buzzkill-search
+    dpkg-buildpackage: info: source version 0.1.0
+    dpkg-buildpackage: info: source distribution unstable
+    dpkg-buildpackage: info: source changed by Anton Zimin <anton.zimin@saritasa.com>
+    dpkg-buildpackage: info: host architecture amd64
+    dpkg-source --before-build .
+    debian/rules clean
+    : No such file or directory
+    cc      -o .o
+    cc: fatal error: no input files
+    compilation terminated.
+    make: *** [<builtin>: .o] Error 1
+    dpkg-buildpackage: error: debian/rules clean subprocess returned exit status 2
+    ```
