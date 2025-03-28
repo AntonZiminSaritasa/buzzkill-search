@@ -808,3 +808,16 @@ dpkg-buildpackage was successful.
     install: target 'debian/buzzkill-search/usr/share/applications/' is not a directory: No such file or directory
     dpkg-buildpackage: error: debian/rules clean subprocess returned exit status 1
     ```
+
+1.
+    ```
+    ImportError: Failed to import test module: buzzkill_search
+    Traceback (most recent call last):
+    File "/usr/lib/python3.8/unittest/loader.py", line 470, in _find_test_path
+        package = self._get_module_from_name(name)
+    File "/usr/lib/python3.8/unittest/loader.py", line 377, in _get_module_from_name
+        __import__(name)
+    File "/tmp/cursor/cursor-test/.pybuild/cpython3_3.8/build/buzzkill_search/__init__.py", line 5, in <module>
+        from .buzzkill_search import main
+    ImportError: cannot import name 'main' from 'buzzkill_search.buzzkill_search' (/tmp/cursor/cursor-test/.pybuild/cpython3_3.8/build/buzzkill_search/buzzkill_search.py)
+    ```

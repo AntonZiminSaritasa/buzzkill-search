@@ -680,7 +680,11 @@ class FileSearchApp:
             self.status_bar.config(text=f"Searching... {self.spinner_chars[self.spinner_index]}")
             self.root.after(100, self.update_spinner)
 
-if __name__ == "__main__":
+def main():
     root = tk.Tk()
+    root.title("Buzzkill Search")
     app = FileSearchApp(root)
-    root.mainloop() 
+    root.mainloop()
+
+if __name__ == "__main__":
+    main() 
