@@ -861,3 +861,9 @@ dpkg-buildpackage was successful.
 Rejected:<br>
 Unable to find distroseries: unstable<br>
 Further error processing not possible because of a critical previous error.
+
+1.
+    ```
+    E: Failed to fetch https://ppa.launchpadcontent.net/antonziminsaritasa/buzzkill-search/ubuntu/dists/noble/InRelease  403  Forbidden [IP: 443]
+    E: The repository 'https://ppa.launchpadcontent.net/antonziminsaritasa/buzzkill-search/ubuntu noble InRelease' is not signed.
+    ```
