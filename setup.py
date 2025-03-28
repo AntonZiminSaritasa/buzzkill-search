@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="buzzkill-search",
-    version="1.0.0",
+    version="0.1.0",
     packages=find_packages(),
     install_requires=[
         "tkinter",
@@ -13,7 +13,7 @@ setup(
         ],
     },
     author="Anton Zimin",
-    author_email="anton.zimin@example.com",
+    author_email="anton.zimin@saritasa.com",
     description="Fast file search utility with GUI",
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",

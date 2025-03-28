@@ -1,7 +1,7 @@
 Source: buzzkill-search
 Section: utils
 Priority: optional
-Maintainer: Anton Zimin <anton.zimin@example.com>
+Maintainer: Anton Zimin <anton.zimin@saritasa.com>
 Build-Depends: debhelper-compat (= 13), dh-python, python3-all, python3-setuptools
 Standards-Version: 4.5.1
 

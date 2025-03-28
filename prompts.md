@@ -619,3 +619,5 @@ cannot mmap an empty file
 1. Let's add a shebang.
 
 1. Let's publish the app to Launchpad.
+
+1. Change example.com to saritasa.com. Change version 1.0.0 to 0.1.0.
