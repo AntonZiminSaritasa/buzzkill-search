@@ -880,3 +880,15 @@ Files specified in DSC are broken or missing, skipping package unpack verificati
     dpkg-source: error: cannot represent change to 2025-03-27_145518.png: binary file contents changed
     dpkg-source: error: add 2025-03-27_145518.png in debian/source/include-binaries if you want to store the modified binary in the debian tarball
     ```
+
+1. I don't want to include the file into the package.
+
+1. It still generated the _source.changes without .gz. Also, it only included jammy.
+
+1.
+    ```
+    dpkg-source: warning: buzzkill-search-0.2.0/debian/changelog(l2): found start of entry where expected start of change data
+    LINE: buzzkill-search (0.2.0) kinetic; urgency=medium
+    dpkg-source: warning: buzzkill-search-0.2.0/debian/changelog(l2): found end of file where expected start of change data
+    dpkg-source: warning: non-native package version does not contain a revision
+    ```
