@@ -672,9 +672,7 @@ cannot mmap an empty file
     dpkg-buildpackage: error: debian/rules clean subprocess returned exit status 2
     ```
 
-1. I need to build a deb package with a single Python tool - buzzkill_search/buzzkill_search.py.<br>
-<br>
-It fails:<br>
+1. I need to build a deb package with a single Python tool - buzzkill_search/buzzkill_search.py. It fails:
     ```
     dpkg-buildpackage: error: debian/rules clean subprocess returned exit status 2
     ```
