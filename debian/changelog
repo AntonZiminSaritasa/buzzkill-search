@@ -1,4 +1,4 @@
-buzzkill-search (0.2.0-1) noble; urgency=medium
+buzzkill-search (0.2.0-2) noble; urgency=medium
 
   * Initial release.
   * Fast file search utility with GUI
