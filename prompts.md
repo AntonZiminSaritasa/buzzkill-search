@@ -900,3 +900,19 @@ Files specified in DSC are broken or missing, skipping package unpack verificati
 1. I'm afraid buzzkill_search.py does not have function main.
 
 1. Let's use noble instead of jammy
+
+1. 
+    ```
+    ImportError: Failed to import test module: buzzkill_search
+    Traceback (most recent call last):
+    File "/usr/lib/python3.10/unittest/loader.py", line 470, in _find_test_path
+        package = self._get_module_from_name(name)
+    File "/usr/lib/python3.10/unittest/loader.py", line 377, in _get_module_from_name
+        __import__(name)
+    File "/<<PKGBUILDDIR>>/.pybuild/cpython3_3.10/build/buzzkill_search/__init__.py", line 5, in <module>
+        from .buzzkill_search import main
+    File "/<<PKGBUILDDIR>>/.pybuild/cpython3_3.10/build/buzzkill_search/buzzkill_search.py", line 9, in <module>
+        import tkinter as tk
+    ModuleNotFoundError: No module named 'tkinter'
+    ```
+
