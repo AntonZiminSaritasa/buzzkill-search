@@ -1,0 +1,15 @@
+Source: buzzkill-search
+Section: utils
+Priority: optional
+Maintainer: Anton Zimin <anton.zimin@saritasa.com>
+Build-Depends: debhelper-compat (= 13), dh-python, python3-all, python3-setuptools, python3-tk
+Standards-Version: 4.5.1
+
+Package: buzzkill-search
+Architecture: all
+Depends: ${python3:Depends}, ${misc:Depends}, python3-tk
+Description: Fast file search utility
+ Buzzkill Search is a fast and efficient file search utility
+ that allows you to quickly find files containing specific text.
+ It features a modern GUI with real-time search results and
+ file content preview. 

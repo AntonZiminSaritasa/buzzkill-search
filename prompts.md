@@ -1,8 +1,8 @@
 # Manually Edited Files
 
-- .gitignore
-- 2025-03-27_145518.png
-- prompts.md
+- [.gitignore](.gitignore)
+- [2025-03-27_145518.png](2025-03-27_145518.png)
+- [prompts.md](prompts.md)
 
 # Chat 1
 
@@ -617,3 +617,303 @@ cannot mmap an empty file
 1. Show me the statements with copy commands you want me to execute.
 
 1. Let's add a shebang.
+
+1. Let's publish the app to Launchpad.
+
+1. Change example.com to saritasa.com. Change version 1.0.0 to 0.1.0.
+
+1.
+    ```
+    root@DESKTOP-UVF4E5V:/mnt/d/Work/Cursor/cursor-test# dpkg-buildpackage -S -us -uc
+    dpkg-buildpackage: info: source package buzzkill-search
+    dpkg-buildpackage: info: source version 0.1.0
+    dpkg-buildpackage: info: source distribution unstable
+    dpkg-buildpackage: info: source changed by Anton Zimin <anton.zimin@saritasa.com>
+    dpkg-source --before-build .
+    debian/rules clean
+    : No such file or directory
+    cc      -o .o
+    cc: fatal error: no input files
+    compilation terminated.
+    make: *** [<builtin>: .o] Error 1
+    dpkg-buildpackage: error: debian/rules clean subprocess returned exit status 2
+    ```
+
+1. ./debian/rules is executable but it does not work. The makefile does not have any source files.
+
+1.
+    ```
+    dpkg-buildpackage: error: debian/rules clean subprocess returned exit status 2
+    ```
+
+1. I need to build a deb package with a single Python tool - buzzkill_search/buzzkill_search.py
+
+1. You deleted the changelog:
+    ```
+    root@DESKTOP-UVF4E5V:/mnt/d/Work/Cursor/cursor-test# dpkg-buildpackage -us -uc
+    dpkg-buildpackage: error: cannot open file debian/changelog: No such file or directory
+    ```
+
+1.
+    ```
+    root@DESKTOP-UVF4E5V:/mnt/d/Work/Cursor/cursor-test# dpkg-buildpackage -us -uc
+    dpkg-buildpackage: info: source package buzzkill-search
+    dpkg-buildpackage: info: source version 0.1.0
+    dpkg-buildpackage: info: source distribution unstable
+    dpkg-buildpackage: info: source changed by Anton Zimin <anton.zimin@saritasa.com>
+    dpkg-buildpackage: info: host architecture amd64
+    dpkg-source --before-build .
+    debian/rules clean
+    : No such file or directory
+    cc      -o .o
+    cc: fatal error: no input files
+    compilation terminated.
+    make: *** [<builtin>: .o] Error 1
+    dpkg-buildpackage: error: debian/rules clean subprocess returned exit status 2
+    ```
+
+1. I need to build a deb package with a single Python tool - buzzkill_search/buzzkill_search.py.<br>
+<br>
+It fails:
+    ```
+    dpkg-buildpackage: error: debian/rules clean subprocess returned exit status 2
+    ```
+
+1. Can you use entry_points in setup.py and erevert debian/rules to its standard configuration? Also, remove tkinter from setup.py because it can't be installed via pip.
+
+1. Your shebang in debian/rules is completely wrong.
+
+1. dpkg-buildpackage does not work with the shebang.
+
+1.
+    ```
+    root@DESKTOP-UVF4E5V:/mnt/d/Work/Cursor/cursor-test# dpkg-buildpackage -us -uc
+    dpkg-buildpackage: info: source package buzzkill-search
+    dpkg-buildpackage: info: source version 0.1.0
+    dpkg-buildpackage: info: source distribution unstable
+    dpkg-buildpackage: info: source changed by Anton Zimin <anton.zimin@saritasa.com>
+    dpkg-buildpackage: info: host architecture amd64
+    dpkg-source --before-build .
+    dpkg-source: info: using options from cursor-test/debian/source/options: --extend-diff-ignore=\.pyc$
+    debian/rules clean
+    : not founds: 2:
+    : not founds: 3: %:
+    dh_auto_clean -O--buildsystem=pybuild
+    I: pybuild base:217: python3.8 setup.py clean
+    running clean
+    removing '/mnt/d/Work/Cursor/cursor-test/.pybuild/cpython3_3.8/build' (and everything under it)
+    'build/bdist.linux-x86_64' does not exist -- can't clean it
+    'build/scripts-3.8' does not exist -- can't clean it
+    dh_autoreconf_clean -O--buildsystem=pybuild
+    dh_clean -O--buildsystem=pybuild
+    dpkg-source -b .
+    dpkg-source: info: using options from cursor-test/debian/source/options: --extend-diff-ignore=\.pyc$
+    dpkg-source: warning: no source format specified in debian/source/format, see dpkg-source(1)
+    dpkg-source: info: using source format '1.0'
+    dpkg-source: warning: source directory 'cursor-test' is not <sourcepackage>-<upstreamversion> 'buzzkill-search-0.1.0'
+    dpkg-source: info: building buzzkill-search in buzzkill-search_0.1.0.tar.gz
+    dpkg-source: error: unable to change permission of 'buzzkill-search_0.1.0.tar.gz': No such file or directory
+    dpkg-buildpackage: error: dpkg-source -b . subprocess returned exit status 2
+    ```
+
+1. 
+    ```
+    dpkg-source: error: source package format '3.0 (quilt) ' is invalid
+    dpkg-buildpackage: error: dpkg-source --before-build . subprocess returned exit status 255
+    ```
+
+1. You were not able to remove the trailing space.
+
+1.
+    ```
+    dpkg-source: info: using options from cursor-test/debian/source/options: --extend-diff-ignore=\.pyc$
+    ' is invalid error: source package format '��3.0 (quilt)
+    dpkg-buildpackage: error: dpkg-source --before-build . subprocess returned exit status 25
+    ```
+
+1.
+    ```
+    root@DESKTOP-UVF4E5V:/mnt/d/Work/Cursor/cursor-test# dpkg-buildpackage -us -uc
+    dpkg-buildpackage: info: source package buzzkill-search
+    dpkg-buildpackage: info: source version 0.1.0
+    dpkg-buildpackage: info: source distribution unstable
+    dpkg-buildpackage: info: source changed by Anton Zimin <anton.zimin@saritasa.com>
+    dpkg-buildpackage: info: host architecture amd64
+    dpkg-source --before-build .
+    dpkg-source: info: using options from cursor-test/debian/source/options: --extend-diff-ignore=\.pyc$
+    debian/rules clean
+    : not founds: 2:
+    : not founds: 3: %:
+    dh_auto_clean -O--buildsystem=pybuild
+    I: pybuild base:217: python3.8 setup.py clean
+    running clean
+    removing '/mnt/d/Work/Cursor/cursor-test/.pybuild/cpython3_3.8/build' (and everything under it)
+    'build/bdist.linux-x86_64' does not exist -- can't clean it
+    'build/scripts-3.8' does not exist -- can't clean it
+    dh_autoreconf_clean -O--buildsystem=pybuild
+    dh_clean -O--buildsystem=pybuild
+    dpkg-source -b .
+    dpkg-source: info: using options from cursor-test/debian/source/options: --extend-diff-ignore=\.pyc$
+    dpkg-source: error: can't build with source format '3.0 (quilt)': no upstream tarball found at ../buzzkill-search_0.1.0.orig.tar.{bz2,gz,lzma,xz}
+    dpkg-buildpackage: error: dpkg-source -b . subprocess returned exit status 2
+    ```
+
+1.
+    ```
+    dpkg-deb: error: control directory has bad permissions 777 (must be >=0755 and <=0775)
+    dh_builddeb: error: dpkg-deb --build debian/buzzkill-search .. returned exit code 2
+    dh_builddeb: error: Aborting due to earlier error
+    dpkg-buildpackage: error: debian/rules binary subprocess returned exit status 2
+    ```
+
+1.
+```
+dpkg-buildpackage was successful.
+```
+
+1.
+    ```
+    root@DESKTOP-UVF4E5V:/tmp/cursor/Cursor# buzzkill-search
+    Traceback (most recent call last):
+    File "/usr/bin/buzzkill-search", line 11, in <module>
+        load_entry_point('buzzkill-search==0.1.0', 'console_scripts', 'buzzkill-search')()
+    File "/usr/lib/python3/dist-packages/pkg_resources/__init__.py", line 490, in load_entry_point
+        return get_distribution(dist).load_entry_point(group, name)
+    File "/usr/lib/python3/dist-packages/pkg_resources/__init__.py", line 2854, in load_entry_point
+        return ep.load()
+    File "/usr/lib/python3/dist-packages/pkg_resources/__init__.py", line 2445, in load
+        return self.resolve()
+    File "/usr/lib/python3/dist-packages/pkg_resources/__init__.py", line 2451, in resolve
+        module = __import__(self.module_name, fromlist=['__name__'], level=0)
+    ModuleNotFoundError: No module named 'buzzkill_search'
+    ```
+
+1.
+    ```
+    dpkg-buildpackage: error: cannot open file debian/changelog: No such file or directory
+    ```
+
+1.
+    ```
+    dpkg-buildpackage: error: cannot read debian/control: No such file or directory
+    ```
+
+1.
+    ```
+    "  dh_auto_clean "-O--buildsystem=pybuild
+    "?) at /usr/share/perl5/Debian/Debhelper/Buildsystem.pm line 602.buildsystem::pybuild
+    : not founds: 5:
+    : not founds: 6: override_dh_auto_install:
+    : not founds: 7: dh_auto_install
+    install: target 'debian/buzzkill-search/usr/share/applications/' is not a directory: No such file or directory
+    dpkg-buildpackage: error: debian/rules clean subprocess returned exit status 1
+    ```
+
+1.
+    ```
+    ImportError: Failed to import test module: buzzkill_search
+    Traceback (most recent call last):
+    File "/usr/lib/python3.8/unittest/loader.py", line 470, in _find_test_path
+        package = self._get_module_from_name(name)
+    File "/usr/lib/python3.8/unittest/loader.py", line 377, in _get_module_from_name
+        __import__(name)
+    File "/tmp/cursor/cursor-test/.pybuild/cpython3_3.8/build/buzzkill_search/__init__.py", line 5, in <module>
+        from .buzzkill_search import main
+    ImportError: cannot import name 'main' from 'buzzkill_search.buzzkill_search' (/tmp/cursor/cursor-test/.pybuild/cpython3_3.8/build/buzzkill_search/buzzkill_search.py)
+    ```
+
+1. The package is working.
+
+1. Yes, upload it to Launchpad.
+
+1.
+    ```
+    root@DESKTOP-UVF4E5V:/tmp/cursor/cursor-test# dput ppa:antonziminsaritasa/buzzkill-search ../buzzkill-search_0.1.0-1_source.changes
+    Can't open ../buzzkill-search_0.1.0-1_source.changes
+    ```
+
+1.
+    ```
+    I see another file buzzkill-search_0.1.0_amd64.changes.
+    ```
+
+1.
+    ```
+    root@DESKTOP-UVF4E5V:/tmp/cursor# dput ppa:antonziminsaritasa/buzzkill-search buzzkill-search_0.1.0_source.changes
+    Checking signature on .changes
+    gpg: /tmp/cursor/buzzkill-search_0.1.0_source.changes: error 58: gpgme_op_verify
+    gpgme_op_verify: GPGME: No data
+    ```
+
+1.
+    ```
+    dput ppa:antonziminsaritasa/buzzkill-search ../buzzkill-search_0.1.0_source.changes
+    ```
+
+1. The package was uploaded to PPA. What next?
+
+1.
+    ```
+    ERROR: ppa 'antonziminsaritasa/buzzkill-search' not found (use --login if private)
+    ```
+
+1. Launchpad PPA sent me an email:<br>
+Rejected:<br>
+Unable to find distroseries: unstable<br>
+Further error processing not possible because of a critical previous error.
+
+1.
+    ```
+    E: Failed to fetch https://ppa.launchpadcontent.net/antonziminsaritasa/buzzkill-search/ubuntu/dists/noble/InRelease  403  Forbidden [IP: 443]
+    E: The repository 'https://ppa.launchpadcontent.net/antonziminsaritasa/buzzkill-search/ubuntu noble InRelease' is not signed.
+    ```
+
+1. Bump package version to 0.2.0. Add a line for every distro to debian/changelog:<br>
+jammy, kinetic, lunar, mantic, noble, oracular
+
+1. Rejected:<br>
+Unable to find buzzkill-search_0.2.0.orig.tar.gz in upload or distribution.<br>
+Files specified in DSC are broken or missing, skipping package unpack verification.
+
+1.
+    ```
+    dpkg-source: error: cannot represent change to 2025-03-27_145518.png: binary file contents changed
+    dpkg-source: error: add 2025-03-27_145518.png in debian/source/include-binaries if you want to store the modified binary in the debian tarball
+    ```
+
+1. I don't want to include the file into the package.
+
+1. It still generated the _source.changes without .gz. Also, it only included jammy.
+
+1.
+    ```
+    dpkg-source: warning: buzzkill-search-0.2.0/debian/changelog(l2): found start of entry where expected start of change data
+    LINE: buzzkill-search (0.2.0) kinetic; urgency=medium
+    dpkg-source: warning: buzzkill-search-0.2.0/debian/changelog(l2): found end of file where expected start of change data
+    dpkg-source: warning: non-native package version does not contain a revision
+    ```
+
+1. I read that "unstable" is applicable for Debian but not for Ubuntu.
+
+1. Why did you corrupt the Python file, delete __init__.py and setup.py?
+
+1. I'm afraid buzzkill_search.py does not have function main.
+
+1. Let's use noble instead of jammy
+
+1. 
+    ```
+    ImportError: Failed to import test module: buzzkill_search
+    Traceback (most recent call last):
+    File "/usr/lib/python3.10/unittest/loader.py", line 470, in _find_test_path
+        package = self._get_module_from_name(name)
+    File "/usr/lib/python3.10/unittest/loader.py", line 377, in _get_module_from_name
+        __import__(name)
+    File "/<<PKGBUILDDIR>>/.pybuild/cpython3_3.10/build/buzzkill_search/__init__.py", line 5, in <module>
+        from .buzzkill_search import main
+    File "/<<PKGBUILDDIR>>/.pybuild/cpython3_3.10/build/buzzkill_search/buzzkill_search.py", line 9, in <module>
+        import tkinter as tk
+    ModuleNotFoundError: No module named 'tkinter'
+    ```
+
+1. Bump package revision

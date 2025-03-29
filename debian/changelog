@@ -1,0 +1,10 @@
+buzzkill-search (0.2.0-2) noble; urgency=medium
+
+  * Initial release.
+  * Fast file search utility with GUI
+  * Real-time search results
+  * File content preview
+  * Support for binary file detection
+  * Recent directories feature
+
+ -- Anton Zimin <anton.zimin@saritasa.com>  Thu, 28 Mar 2025 17:00:00 +0000 
