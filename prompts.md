@@ -674,7 +674,7 @@ cannot mmap an empty file
 
 1. I need to build a deb package with a single Python tool - buzzkill_search/buzzkill_search.py.<br>
 <br>
-It fails:
+It fails:<br>
     ```
     dpkg-buildpackage: error: debian/rules clean subprocess returned exit status 2
     ```
