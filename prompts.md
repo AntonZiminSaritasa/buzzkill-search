@@ -917,3 +917,5 @@ Files specified in DSC are broken or missing, skipping package unpack verificati
     ```
 
 1. Bump package revision
+
+1. I created 2025-03-28_154527.png file. Add it as a second screenshot to README.md. Add it to the list of human-created files.

@@ -2,75 +2,66 @@
 
 **Disclaimer**: All code in this project is written by Cursor AI. The project is licensed under the MIT License.
 
-Note: Three files in this project were created by a human:
-- `.gitignore`
-- `prompts.md`
-- `2025-03-27_145518.png`
-
-A fast file search utility for Windows that allows you to search through files by content and name.
-
-![Buzzkill Search Screenshot](2025-03-27_145518.png)
+Buzzkill Search is a fast and efficient file search utility that allows you to quickly find files containing specific text. It features a modern GUI with real-time search results and file content preview.
 
 ## Features
 
-- Fast file search using parallel processing
+- Real-time file search as you type
 - File content preview with line numbers
-- File name filtering using glob patterns (e.g., *.txt, *.py)
-- Recent directories list
-- Binary file detection and skipping
-- Support for various text encodings
-- Responsive UI with proper error handling
+- Support for binary file detection
+- Recent directories feature
+- Modern and responsive GUI
+- Cross-platform support (Windows, Linux, macOS)
 
-## Requirements
+## Screenshots
 
-- Python 3.x
-- tkinter (Python's standard GUI library)
-- Windows OS or Linux with X11
+![Buzzkill Search Screenshot](2025-03-27_145518.png)
+![Buzzkill Search Screenshot](2025-03-28_154527.png)
 
 ## Installation
 
-1. Clone the repository
+### From PPA (Ubuntu)
 
-2. Install Python and tkinter:
-   - Windows: Python installer includes tkinter
-   - Ubuntu/Debian:
-     ```
-     sudo apt-get update
-     sudo apt-get install python3-tk
-     ```
-   - Fedora:
-     ```
-     sudo dnf install python3-tkinter
-     ```
-   - Arch Linux:
-     ```
-     sudo pacman -S tk
-     ```
+```bash
+sudo add-apt-repository ppa:antonziminsaritasa/buzzkill-search
+sudo apt update
+sudo apt install buzzkill-search
+```
 
-3. No additional dependencies required - the program uses only Python standard library modules
+### From Source
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/buzzkill-search.git
+   cd buzzkill-search
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Run the application:
+   ```bash
+   python3 buzzkill_search.py
+   ```
 
 ## Usage
 
-Run the program:
-```
-python3 buzzkill_search.py
-```
+1. Launch Buzzkill Search
+2. Select a directory to search in using the directory picker
+3. Enter your search term in the search box
+4. Results will appear in real-time as you type
+5. Click on a file to preview its contents
+6. Double-click a file to open it in your default application
 
-### Search Features
+## Files Created by Human
 
-- Enter text in the search box to search file contents
-- Use the file filter to search by file name pattern (e.g., *.txt)
-- Select a directory using the "Change Directory" button
-- Click on a file in the list to view its contents
-- Right-click a file to reveal it in File Explorer
+- `.gitignore`
+- `prompts.md`
+- `2025-03-27_145518.png`
+- `2025-03-28_154527.png`
 
-### File Filter Examples
+## License
 
-- `*.txt` - Show only text files
-- `*.py` - Show only Python files
-- `test_*.py` - Show Python files starting with "test_"
-- `*.{txt,py}` - Show both text and Python files
-
-## Disclaimer
-
-All code in this project is written by Cursor AI. The project is licensed under the MIT License. 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
