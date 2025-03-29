@@ -339,7 +339,7 @@
 
 # Chat 2
 
-1. The app should display file content in the text area when I select a file from the list.
+64. The app should display file content in the text area when I select a file from the list.
 
 1. Line numbers are displayed. File content is not displayed.
 
@@ -534,7 +534,7 @@ file search does not work
 
 # Chat 3
 
-1. The app takes over 1 minute to find files in a large directory. I want the search to take 1 second.
+116. The app takes over 1 minute to find files in a large directory. I want the search to take 1 second.
 
 1. The Change Directory button stopped working. It does not show the Select Directory popup anymore.
 
@@ -608,7 +608,7 @@ cannot mmap an empty file
 
 # Cursor Pro
 
-1. Restore everything to c2f9d23e055932211e9ac1b48a59ecb4ee8788e5.
+145. Restore everything to c2f9d23e055932211e9ac1b48a59ecb4ee8788e5.
 
 1. I created ./tmp dir and placed 4 files with the desired content there. Can you synchronize them to fix your previous mistakes?
 
@@ -767,9 +767,9 @@ It fails:
     ```
 
 1.
-```
-dpkg-buildpackage was successful.
-```
+    ```
+    dpkg-buildpackage was successful.
+    ```
 
 1.
     ```
