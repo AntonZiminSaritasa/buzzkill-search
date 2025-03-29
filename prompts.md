@@ -892,3 +892,5 @@ Files specified in DSC are broken or missing, skipping package unpack verificati
     dpkg-source: warning: buzzkill-search-0.2.0/debian/changelog(l2): found end of file where expected start of change data
     dpkg-source: warning: non-native package version does not contain a revision
     ```
+
+1. I read that "unstable" is applicable for Debian but not for Ubuntu.
